@@ -5,7 +5,7 @@ electrostatics: [
 {
 name: "Electric Field Football",
 icon: "⚽",
-file: "../../simulations/electric-field-football.html"
+file: "electric-field-football.html"
 },
 
 {
