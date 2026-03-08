@@ -11,7 +11,8 @@ const container = document.createElement("div")
 container.id = "labContainer"
 
 container.style.position = "absolute"
-container.style.top = "0"
+container.style.top = "80px"
+container.style.bottom = "60px"
 container.style.left = "0"
 container.style.width = "100%"
 container.style.height = "100%"
@@ -124,31 +125,31 @@ grid.appendChild(card)
 function launchSimulation(file){
 
 container.innerHTML = ""
-
 /* back button */
+const header = document.getElementById("header")
 
 const back = document.createElement("button")
 
 back.innerText = "← Back to Lab"
 
 back.style.position = "absolute"
-back.style.top = "20px"
 back.style.left = "20px"
-back.style.padding = "10px 16px"
+back.style.top = "10px"
+back.style.padding = "8px 14px"
 back.style.background = "#111"
 back.style.border = "1px solid #6ec6ff"
 back.style.color = "white"
 back.style.cursor = "pointer"
-back.style.zIndex = "100"
 
 back.onclick = ()=>{
+
 container.remove()
+back.remove()
 createWorld(scene,camera)
+
 }
 
-container.appendChild(back)
-
-
+header.appendChild(back)  
 /* ----------------------------- */
 /* DYNAMIC HEADER / FOOTER SIZE */
 /* ----------------------------- */
@@ -190,7 +191,7 @@ window.addEventListener("resize", computeOffsets)
 /* ORIENTATION HELPER */
 /* ----------------------------- */
 
-if(window.innerHeight > window.innerWidth){
+if(/Mobi|Android/i.test(navigator.userAgent) && window.innerHeight > window.innerWidth){
 
 const rotateMsg = document.createElement("div")
 
