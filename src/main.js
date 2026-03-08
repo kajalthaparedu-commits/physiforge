@@ -4,12 +4,25 @@ import { createWorld } from "./worlds/electrostatics.js"
 const universe = new UniverseRenderer()
 
 /* loader now receives scene + camera */
+window.loadWorld = function(name){
 
-const loader = new WorldLoader(
-    universe.scene,
-    universe.camera
-)
+console.log("CLICK DETECTED:", name)
 
+/* hide menu */
+
+document.getElementById("worldHub").style.display = "none"
+
+/* stop universe animation */
+
+universe.renderer.domElement.style.display = "none"
+
+/* load electrostatics world */
+
+if(name === "electrostatics"){
+    createWorld(universe.scene, universe.camera)
+}
+
+}
 /* start background universe */
 
 universe.start()
