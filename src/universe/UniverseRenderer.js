@@ -2,7 +2,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import { Starfield } from "./Starfield.js"
 import { PlanetSystem } from "./PlanetSystem.js"
 import { MeteorSystem } from "./MeteorSystem.js"
-
+import { NebulaClouds } from "./NebulaClouds.js"
 
 export class UniverseRenderer {
 
@@ -40,6 +40,7 @@ this.renderer.setSize(window.innerWidth,window.innerHeight)
 this.starfield = new Starfield(this.scene)
 this.planets = new PlanetSystem(this.scene)
 this.meteors = new MeteorSystem(this.scene)
+this.nebula = new NebulaClouds(this.scene)
 
 
 }
@@ -58,26 +59,22 @@ animate(){
 
 requestAnimationFrame(()=>this.animate())
 
-/* cinematic camera drift */
-
 const t = Date.now() * 0.0001
 
-this.camera.position.x = Math.sin(t) * 10
-this.camera.position.y = Math.cos(t) * 5
+/* camera drift */
 
-this.camera.lookAt(0,0,0)
+this.camera.position.x = Math.sin(t) * 20
+this.camera.position.y = Math.cos(t) * 10
 
-/* update universe systems */
+this.camera.lookAt(0,0,-600)
 
-this.starfield.update()
-this.planets.update()
-this.meteors.update()
+/* update systems */
 
-
-/* render */
+if(this.starfield) this.starfield.update()
+if(this.planets) this.planets.update()
+if(this.meteors) this.meteors.update()
+if(this.nebula) this.nebula.update()
 
 this.renderer.render(this.scene,this.camera)
-
-}
 
 }
