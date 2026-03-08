@@ -1,0 +1,83 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+import { Starfield } from "./Starfield.js"
+import { PlanetSystem } from "./PlanetSystem.js"
+import { MeteorSystem } from "./MeteorSystem.js"
+
+
+export class UniverseRenderer {
+
+constructor(){
+
+this.scene = new THREE.Scene()
+
+this.camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth / window.innerHeight,
+0.1,
+2000
+)
+
+this.camera.position.z = 60
+
+this.renderer = new THREE.WebGLRenderer({antialias:true})
+
+this.renderer.setSize(window.innerWidth,window.innerHeight)
+
+document.body.appendChild(this.renderer.domElement)
+
+/* resize */
+
+window.addEventListener("resize",()=>{
+
+this.camera.aspect = window.innerWidth / window.innerHeight
+this.camera.updateProjectionMatrix()
+this.renderer.setSize(window.innerWidth,window.innerHeight)
+
+})
+
+/* background systems */
+
+this.starfield = new Starfield(this.scene)
+this.planets = new PlanetSystem(this.scene)
+this.meteors = new MeteorSystem(this.scene)
+
+
+}
+
+/* start universe */
+
+start(){
+
+this.animate()
+
+}
+
+/* animation loop */
+
+animate(){
+
+requestAnimationFrame(()=>this.animate())
+
+/* cinematic camera drift */
+
+const t = Date.now() * 0.0001
+
+this.camera.position.x = Math.sin(t) * 10
+this.camera.position.y = Math.cos(t) * 5
+
+this.camera.lookAt(0,0,0)
+
+/* update universe systems */
+
+this.starfield.update()
+this.planets.update()
+this.meteors.update()
+
+
+/* render */
+
+this.renderer.render(this.scene,this.camera)
+
+}
+
+}
