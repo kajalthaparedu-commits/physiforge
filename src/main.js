@@ -41,9 +41,9 @@ document.getElementById("worldHub").style.display = "none"
 
 universe.renderer.domElement.style.display = "none"
 
-/* load world */
-
-loader.load(name)
+if(name === "electrostatics"){
+    createWorld(universe.scene, universe.camera)
+}
 
 }
 window.openSimulation = function(file){
