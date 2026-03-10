@@ -135,8 +135,8 @@ animation:orbitSatellite 12s linear infinite;
 }
 
 @keyframes orbitSatellite{
-0%{ transform:rotate(0deg) translateX(260px) rotate(0deg); }
-100%{ transform:rotate(360deg) translateX(260px) rotate(-360deg); }
+0%{ transform:rotate(0deg) translateX(35vw) rotate(0deg); }
+100%{ transform:rotate(360deg) translateX(35vw) rotate(-360deg); }
 }
 
 /* ---------- HEADER ---------- */
@@ -173,34 +173,6 @@ text-shadow:0 0 8px rgba(120,200,255,0.7);
 
 }
 
-#backToLab{
-
-position:absolute;
-left:20px;
-top:0;
-
-background:rgba(0,0,0,0.55);
-border:1px solid rgba(120,200,255,0.6);
-
-color:white;
-font-size:14px;
-
-padding:6px 12px;
-
-border-radius:8px;
-
-cursor:pointer;
-
-transition:all 0.2s;
-
-}
-
-#backToLab:hover{
-
-box-shadow:0 0 12px rgba(120,200,255,0.7);
-border-color:#6ec6ff;
-
-}
 /* ---------- MUTE BUTTON ---------- */
 #muteBtn{
 position:absolute;
@@ -292,7 +264,9 @@ pointer-events:none;
 <!-- TITLE SCREEN -->
 
 <div id="titleScreen" class="ui-panel" role="button">
-
+titleScreen.addEventListener("keypress", (e)=>{
+if(e.key === "Enter") titleScreen.onclick()
+})
 <div id="titleContainer">
 <div id="orbitRing"></div>
 <div id="satellite"></div>
@@ -310,9 +284,6 @@ An open platform for interactive physics exploration
 <!-- HEADER -->
 
 <div id="header" class="ui-panel">
-
-<button id="backToLab">← Lab</button>
-
 <div id="headerTitle">PHYSIFORGE</div>
 
 </div>
@@ -365,51 +336,58 @@ Interactive physics platform for education, research, and exploration
 /* ---------- MUSIC ---------- */
 
 const music = new Audio("./assets/sound/PhysiForge-theme.mp3")
+music.preload = "auto"
 const titleScreen = document.getElementById("titleScreen")
 const header = document.getElementById("header")
 const worldHub = document.getElementById("worldHub")
 const muteBtn = document.getElementById("muteBtn")
-
-muteBtn.onclick = () => {
-
-music.muted = !music.muted
-
-muteBtn.textContent = music.muted ? "🔇" : "🔊"
-
-}
 music.loop = true
 music.volume = 0
 
+muteBtn.onclick = () => {
+
+  music.muted = !music.muted
+
+  muteBtn.textContent = music.muted ? "🔇" : "🔊"
+
+}
 titleScreen.onclick = () => {
-music.play()
-let fade = setInterval(()=>{
-if(music.volume < 0.05){
-music.volume += 0.002
-}else{
-clearInterval(fade)
-  
+
+  // Prevent double-click triggering
+  if (titleScreen.style.display === "none") return
+
+  // Start background music
+  music.play()
+
+  // Smooth fade-in of music
+  let fade = setInterval(() => {
+
+    if (music.volume < 0.06) {
+      music.volume += 0.003
+    } else {
+      clearInterval(fade)
+    }
+
+  }, 120)
+
+  // Fade out title screen
+  titleScreen.style.opacity = 0
+
+  setTimeout(() => {
+
+    titleScreen.style.display = "none"
+
+    header.style.display = "block"
+
+    worldHub.style.display = "block"
+
+    setTimeout(() => {
+      worldHub.style.opacity = 1
+    }, 50)
+
+  }, 900)
+
 }
-
-},120)
-
-titleScreen.style.opacity = 0
-
-setTimeout(()=>{
-
-titleScreen.style.display="none"
-
-header.style.display="block"
-
-worldHub.style.display="block"
-
-setTimeout(()=>{
-worldHub.style.opacity=1
-},50)
-
-},900)
-
-}
-
 </script>
 <script>
 
@@ -428,17 +406,5 @@ alert("This world is coming soon.")
 </script>
 <script type="module" src="./src/main.js"></script>
 
-<script>
-
-const backBtn = document.getElementById("backToLab")
-
-backBtn.onclick = () => {
-
-worldHub.style.display = "block"
-worldHub.style.opacity = 1
-
-}
-
-</script>
 </body>
 </html>
