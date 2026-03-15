@@ -912,7 +912,7 @@ function logH(){ return cv.height / DPR; }
 function bounds(){
   // All coordinates in LOGICAL pixels (ctx already scaled by DPR)
   const W = logW(), H = logH();
-  const mx = W * 0.082, my = H * 0.088;
+  const mx = W * 0.02, my = H * 0.015;
   FL = mx;  FR = W - mx * 0.50;
   FT = my;  FB = H - my;
   FW = FR - FL;  FH = FB - FT;
