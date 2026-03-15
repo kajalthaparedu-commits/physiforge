@@ -135,15 +135,15 @@ animation:orbitSatellite 12s linear infinite;
 }
 
 @keyframes orbitSatellite{
-0%{ transform:rotate(0deg) translateX(35vw) rotate(0deg); }
-100%{ transform:rotate(360deg) translateX(35vw) rotate(-360deg); }
+0%{ transform:rotate(0deg) translateX(260px) rotate(0deg); }
+100%{ transform:rotate(360deg) translateX(260px) rotate(-360deg); }
 }
 
 /* ---------- HEADER ---------- */
 
 #header{
 position:absolute;
-top:12px;
+top:6px;
 left:0;
 width:100%;
 display:none;
@@ -173,25 +173,6 @@ text-shadow:0 0 8px rgba(120,200,255,0.7);
 
 }
 
-/* ---------- MUTE BUTTON ---------- */
-#muteBtn{
-position:absolute;
-top:15px;
-right:20px;
-background:rgba(0,0,0,0.6);
-border:1px solid rgba(120,200,255,0.6);
-color:white;
-font-size:18px;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
-pointer-events:auto;
-transition:all 0.2s;
-}
-
-#muteBtn:hover{
-box-shadow:0 0 10px rgba(120,200,255,0.7);
-}
 /* ---------- WORLD HUB ---------- */
 
 #worldHub{
@@ -259,14 +240,11 @@ pointer-events:none;
 <!-- GLOBAL UI LAYER -->
 
 <div id="ui">
-<button id="muteBtn">🔊</button>
   
 <!-- TITLE SCREEN -->
 
 <div id="titleScreen" class="ui-panel" role="button">
-titleScreen.addEventListener("keypress", (e)=>{
-if(e.key === "Enter") titleScreen.onclick()
-})
+
 <div id="titleContainer">
 <div id="orbitRing"></div>
 <div id="satellite"></div>
@@ -340,24 +318,20 @@ music.preload = "auto"
 const titleScreen = document.getElementById("titleScreen")
 const header = document.getElementById("header")
 const worldHub = document.getElementById("worldHub")
-const muteBtn = document.getElementById("muteBtn")
+titleScreen.tabIndex = 0
 music.loop = true
 music.volume = 0
+titleScreen.addEventListener("keydown",(e)=>{
+if(e.key === "Enter") titleScreen.onclick()
+})
 
-muteBtn.onclick = () => {
-
-  music.muted = !music.muted
-
-  muteBtn.textContent = music.muted ? "🔇" : "🔊"
-
-}
 titleScreen.onclick = () => {
-
+  
   // Prevent double-click triggering
   if (titleScreen.style.display === "none") return
 
   // Start background music
-  music.play()
+  music.play().catch(()=>{})
 
   // Smooth fade-in of music
   let fade = setInterval(() => {
