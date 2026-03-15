@@ -38,6 +38,10 @@
   --txt:#bdd3f0;--dim:#506888;
 }
 html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;overflow:hidden;user-select:none;font-size:13px;touch-action:none}
+/* Layout reset to remove browser default gaps and ensure full-viewport canvas */
+html,body{margin:0;padding:0;width:100%;height:100%;}
+#app{min-height:100vh;}
+
 #app{display:flex;flex-direction:column;height:100vh}
 
 /* ═══ PORTRAIT BLOCKER ═══ */
