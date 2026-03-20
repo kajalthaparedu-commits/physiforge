@@ -23,7 +23,9 @@ universe.renderer.domElement.style.display = "none"
 if(name === "electrostatics"){
 createWorld(universe.scene, universe.camera)
 }
-
+if(name === "modern"){
+  openModernWorld()
+}
 }
 
 
@@ -86,5 +88,58 @@ frame.style.height = "100%"
 frame.style.border = "none"
 
 simWrap.appendChild(frame)
+
+}
+function openModernWorld(){
+
+const ui = document.getElementById("ui")
+
+const wrap = document.createElement("div")
+wrap.id = "modernWorld"
+
+wrap.style.position = "absolute"
+wrap.style.top = "80px"
+wrap.style.left = "0"
+wrap.style.right = "0"
+wrap.style.bottom = "120px"
+wrap.style.display = "flex"
+wrap.style.flexDirection = "column"
+wrap.style.alignItems = "center"
+wrap.style.justifyContent = "center"
+wrap.style.gap = "20px"
+
+ui.appendChild(wrap)
+
+/* TITLE */
+const title = document.createElement("h1")
+title.innerText = "Modern Physics World"
+title.style.color = "#00e5ff"
+wrap.appendChild(title)
+
+/* BUTTON */
+const btn = document.createElement("button")
+btn.innerText = "Photoelectric Effect"
+
+btn.onclick = ()=>{
+  openSimulation("simulations/photoelectric.html")
+}
+
+wrap.appendChild(btn)
+
+/* BACK */
+const back = document.createElement("button")
+back.innerText = "← Back"
+
+back.style.position = "absolute"
+back.style.top = "20px"
+back.style.left = "20px"
+
+back.onclick = ()=>{
+  wrap.remove()
+  document.getElementById("worldHub").style.display = "block"
+  universe.renderer.domElement.style.display = "block"
+}
+
+ui.appendChild(back)
 
 }
