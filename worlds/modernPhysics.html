@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Modern Physics – PhysiForge</title>
+
+<style>
+body{
+  margin:0;
+  background:radial-gradient(circle at center,#02121c 0%,#01070d 100%);
+  color:white;
+  font-family:'Inter',sans-serif;
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:22px;
+  letter-spacing:4px;
+  color:#00e5ff;
+  text-shadow:0 0 20px #00e5ff;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:22px;
+  padding:40px;
+  max-width:1100px;
+  margin:auto;
+}
+
+/* CARD */
+.card{
+  position:relative;
+  padding:25px;
+  border-radius:14px;
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(0,229,255,0.2);
+  cursor:pointer;
+  transition:all 0.35s ease;
+  overflow:hidden;
+}
+
+/* glow effect */
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,#00e5ff33,transparent);
+  opacity:0;
+  transition:0.4s;
+}
+
+.card:hover{
+  transform:translateY(-8px) scale(1.02);
+  border:1px solid #00e5ff;
+  box-shadow:0 0 30px #00e5ff55;
+}
+
+.card:hover::before{
+  opacity:1;
+}
+
+/* text */
+.title{
+  font-size:18px;
+  color:#00e5ff;
+  margin-bottom:10px;
+}
+
+.desc{
+  font-size:13px;
+  color:#6fa3b8;
+}
+
+/* BACK BUTTON */
+.back{
+  position:absolute;
+  top:20px;
+  left:20px;
+  padding:10px 16px;
+  background:#000;
+  border:1px solid #00e5ff;
+  color:#00e5ff;
+  cursor:pointer;
+  border-radius:6px;
+  transition:0.3s;
+}
+
+.back:hover{
+  box-shadow:0 0 12px #00e5ff;
+  transform:scale(1.05);
+}
+
+/* FOOTER */
+.footer{
+  position:fixed;
+  bottom:10px;
+  width:100%;
+  text-align:center;
+  font-size:11px;
+  color:#5f9fb5;
+}
+</style>
+</head>
+
+<body>
+
+<button class="back" onclick="goBack()">← Back</button>
+
+<div class="header">MODERN PHYSICS WORLD</div>
+
+<div class="grid">
+
+<div class="card" onclick="openSim('photoelectric.html')">
+  <div class="title">⚛ Photoelectric Effect</div>
+  <div class="desc">Einstein’s equation, stopping potential, Planck constant</div>
+</div>
+
+<div class="card">
+  <div class="title">🌈 Atomic Spectra</div>
+  <div class="desc">Coming soon</div>
+</div>
+
+<div class="card">
+  <div class="title">🧪 Davisson–Germer</div>
+  <div class="desc">Electron diffraction experiment</div>
+</div>
+
+</div>
+
+<div class="footer">
+© PhysiForge · Created by Kajal Thapar
+</div>
+
+<script>
+function openSim(file){
+  window.location.href = "../simulations/" + file
+}
+
+function goBack(){
+  window.location.href = "../index.html"
+}
+</script>
+
+</body>
+</html>
