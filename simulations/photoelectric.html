@@ -2,183 +2,1414 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Photoelectric Effect</title>
-
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photoelectric Effect — PhysiForge</title>
 <style>
-body{
-margin:0;
-background:#020a12;
-color:white;
-font-family:monospace;
+:root{
+  --bg:#f0f0f0;--panel:#ffffff;--border:#bbbbbb;--border2:#888888;
+  --text:#111111;--dim:#555555;--label:#333333;
+  --accent:#0055aa;--green:#005500;--red:#aa0000;
+  --font-ui:Arial,Helvetica,sans-serif;--font-mono:'Courier New',monospace;
 }
-.panel{
-background:#030d16;
-border:1px solid #0d2535;
-border-radius:8px;
-padding:10px;
-margin-bottom:10px;
+body.dark{
+  --bg:#060e18;--panel:#0c1824;--border:#1e3a52;--border2:#2a5a7a;
+  --text:#dddddd;--dim:#8aaccb;--label:#aaccdd;--accent:#3388ff;--green:#00cc44;--red:#ff4466;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:14px}
+#app{max-width:960px;margin:0 auto;padding:10px 14px}
+
+/* TOP BAR */
+#topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:2px solid var(--border);margin-bottom:10px}
+#site-title{font-size:10px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+#main-title{font-size:19px;font-weight:700;color:var(--accent)}
+.tbtn{padding:5px 11px;background:var(--panel);border:1px solid var(--border2);
+  border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);font-family:var(--font-mono)}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* SPECTRUM */
+#spec-section{display:flex;align-items:stretch;gap:8px;margin-bottom:10px}
+.spec-box{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:6px 11px}
+.spec-lbl{font-size:10px;color:var(--dim);margin-bottom:2px;font-weight:700;letter-spacing:.5px}
+#spec-inp{width:64px;border:1px solid var(--border2);border-radius:3px;padding:2px 5px;
+  font-family:var(--font-mono);font-size:13px;text-align:right;background:var(--panel);color:var(--text)}
+#spec-canvas{flex:1;display:block;cursor:crosshair;border:1px solid #888;border-radius:3px;min-width:0}
+#freq-val{font-size:13px;font-family:var(--font-mono);color:var(--text);font-weight:700}
+
+/* APPARATUS */
+#app-wrap{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:10px;margin-bottom:10px}
+#apparatus{width:100%;display:block}
+
+/* READOUT */
+#readout{display:flex;flex-wrap:wrap;background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;margin-bottom:10px;overflow:hidden}
+.ro-cell{flex:1 1 0;min-width:88px;text-align:center;padding:6px 4px;border-right:1px solid var(--border)}
+.ro-cell:last-child{border-right:none}
+.ro-key{font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.ro-val{font-size:12px;font-weight:700;font-family:var(--font-mono)}
+.emit-y{color:var(--green)}.emit-n{color:var(--red)}
+
+/* CONTROLS */
+#controls{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:11px 15px;margin-bottom:10px}
+.ctrl-hd{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:6px}
+#metal-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.mbtn{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--panel);
+  border:1px solid var(--border2);border-radius:4px;cursor:pointer;
+  font-size:12px;font-family:var(--font-mono);color:var(--text)}
+.mbtn:hover{border-color:var(--accent)}.mbtn.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.msw{width:11px;height:11px;border-radius:2px;border:1px solid rgba(0,0,0,.2)}
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.srow:last-child{margin-bottom:0}
+.slbl{min-width:128px;font-size:12px;font-weight:700;color:var(--label)}
+.smn,.smx{font-size:10px;color:var(--dim);min-width:26px}.smx{text-align:left}
+.slider{flex:1;height:5px;cursor:pointer;accent-color:var(--accent)}
+.snum{width:64px;border:1px solid var(--border2);border-radius:3px;
+  padding:2px 5px;font-family:var(--font-mono);font-size:12px;text-align:right;
+  background:var(--panel);color:var(--text)}
+.sunit{min-width:20px;font-size:11px;color:var(--dim)}
+.vdir{display:flex;justify-content:space-between;padding:0 64px 0 128px;font-size:10px;margin-top:1px}
+
+/* ACTIONS */
+#actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.abp{padding:7px 15px;background:var(--accent);color:#fff;border:none;border-radius:4px;
+  cursor:pointer;font-size:12px;font-family:var(--font-mono);font-weight:700}
+.abp:hover{opacity:.88}
+.abs{padding:7px 13px;background:var(--panel);color:var(--text);border:1px solid var(--border2);
+  border-radius:4px;cursor:pointer;font-size:12px;font-family:var(--font-mono)}
+.abs:hover{border-color:var(--accent);color:var(--accent)}
+.abs:disabled{opacity:.45;cursor:default}
+
+/* DATA TABLE */
+#data-sec{display:none;background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;padding:10px 14px;margin-bottom:10px;overflow-x:auto}
+#dt{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px}
+#dt th{background:#e8e8e8;border:1px solid var(--border);padding:4px 6px;text-align:center;font-weight:700}
+body.dark #dt th{background:#1a3050}
+#dt td{border:1px solid var(--border);padding:3px 6px;text-align:right}
+#dt tr:nth-child(even) td{background:#f8f8f8}
+body.dark #dt tr:nth-child(even) td{background:#0e1e2c}
+
+/* GRAPHS */
+#graph-sec{display:none;background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;padding:12px;margin-bottom:10px}
+#gg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gp{border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.gt{background:#e8e8e8;padding:4px 9px;font-size:11px;font-weight:700;color:#333;
+  display:flex;justify-content:space-between;align-items:center}
+body.dark .gt{background:#1a3050;color:#aaccdd}
+.ge{padding:1px 6px;font-size:10px;cursor:pointer;border:1px solid #999;
+  background:var(--panel);border-radius:3px;color:var(--text)}
+.gc{display:block;width:100%}
+#gs{margin-top:8px;padding:8px 12px;background:#f5f5f5;border:1px solid var(--border);
+  border-radius:4px;font-family:var(--font-mono);font-size:11px;line-height:1.7;display:none}
+body.dark #gs{background:#0e1e2c}
+
+/* MODAL */
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);
+  z-index:1000;align-items:center;justify-content:center}
+#modal.open{display:flex}
+#mi{background:var(--panel);border-radius:8px;padding:16px;
+  width:92vw;max-width:880px;max-height:92vh}
+#mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+#mh span{font-weight:700;font-size:14px}
+#mx{border:none;background:none;font-size:24px;cursor:pointer;color:var(--dim);line-height:1}
+#mc{display:block;width:100%}
+
+/* HELP */
+#hbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:999;align-items:center;justify-content:center}
+#hbg.open{display:flex}
+#hbox{background:#fff;border-radius:8px;padding:22px 26px;max-width:540px;
+  width:90%;max-height:85vh;overflow-y:auto;color:#111}
+#hbox h2{color:#0055aa;margin-bottom:10px}
+#hbox h3{margin:12px 0 5px;font-size:14px}
+#hbox p,#hbox li{font-size:13px;line-height:1.6;margin-bottom:5px}
+.heq{background:#eef4ff;border:1px solid #ccd;border-radius:4px;
+  padding:6px 11px;font-family:monospace;margin:5px 0;font-size:13px}
+/* Resources modal — same structure as help */
+#resbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:999;align-items:center;justify-content:center}
+#resbg.open{display:flex}
+#resbox{background:#fff;border-radius:8px;padding:22px 26px;max-width:580px;
+  width:90%;max-height:85vh;overflow-y:auto;color:#111}
+#resbox h2{color:#0055aa;margin-bottom:10px}
+#resbox h3{font-size:13px;font-weight:700;margin:12px 0 4px;color:#003388;
+  text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #dde;padding-bottom:3px}
+#resbox p,#resbox li{font-size:13px;line-height:1.65;margin-bottom:4px}
+.req{background:#f0f4ff;border-left:3px solid #0055aa;padding:5px 10px;
+  font-family:monospace;font-size:13px;margin:4px 0}
+.rstep{display:flex;gap:8px;align-items:baseline;margin-bottom:4px}
+.rnum{background:#0055aa;color:#fff;border-radius:50%;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  font-weight:700;flex-shrink:0}
+#footer{text-align:center;padding:9px 0;font-size:11px;color:var(--dim);border-top:1px solid var(--border)}
 </style>
 </head>
-
 <body>
+<div id="app">
 
-<div id="root"></div>
+<div id="topbar">
+  <div>
+    <div id="site-title">PhysiForge · Modern Physics World</div>
+    <div id="main-title">PHOTOELECTRIC EFFECT</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="tbtn" onclick="history.back()">← Back</button>
+    <button class="tbtn" onclick="openRes()">Resources</button>
+    <button class="tbtn" onclick="toggleTheme()">Light / Dark</button>
+    <button class="tbtn" onclick="openHelp()">? Help</button>
+  </div>
+</div>
 
-<script type="text/babel">
+<!-- SPECTRUM BAR -->
+<div id="spec-section">
+  <div class="spec-box">
+    <div class="spec-lbl">Wavelength</div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <input type="number" id="spec-inp" value="493" min="200" max="750" step="1">
+      <span style="font-size:12px;color:var(--dim)">nm</span>
+    </div>
+  </div>
+  <canvas id="spec-canvas" height="56"></canvas>
+  <div class="spec-box" style="min-width:160px;text-align:right">
+    <div class="spec-lbl">Frequency</div>
+    <div id="freq-val">—</div>
+  </div>
+</div>
 
-const {useState,useEffect,useMemo} = React;
+<!-- APPARATUS -->
+<div id="app-wrap">
+  <svg id="apparatus" viewBox="0 0 740 270"></svg>
+</div>
 
-const h = 4.136e-3;
+<!-- READOUT -->
+<div id="readout">
+  <div class="ro-cell"><div class="ro-key">Emission</div><div class="ro-val" id="ro-em">—</div></div>
+  <div class="ro-cell"><div class="ro-key">Photon E (eV)</div><div class="ro-val" id="ro-eph">—</div></div>
+  <div class="ro-cell"><div class="ro-key">Work fn φ</div><div class="ro-val" id="ro-phi">—</div></div>
+  <div class="ro-cell"><div class="ro-key">KE max (eV)</div><div class="ro-val" id="ro-ke">—</div></div>
+  <div class="ro-cell"><div class="ro-key">Stopping Vs</div><div class="ro-val" id="ro-vs">—</div></div>
+  <div class="ro-cell"><div class="ro-key">Threshold λ</div><div class="ro-val" id="ro-l0">—</div></div>
+  <div class="ro-cell"><div class="ro-key">Current (μA)</div><div class="ro-val" id="ro-cur">—</div></div>
+</div>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <div class="ctrl-hd">Cathode Metal</div>
+  <div id="metal-row"></div>
+  <div class="srow">
+    <div class="slbl">Photon Density</div>
+    <span class="smn">0.01</span>
+    <input type="range" class="slider" id="ds" min="0.01" max="1" step="0.01" value="0.5">
+    <span class="smx">1.00</span>
+    <input type="number" class="snum" id="dn" min="0.01" max="1" step="0.01" value="0.50">
+  </div>
+  <div class="srow">
+    <div class="slbl">Voltage (V)</div>
+    <span class="smn">−5</span>
+    <input type="range" class="slider" id="vs" min="-5" max="5" step="0.01" value="0">
+    <span class="smx">+5</span>
+    <input type="number" class="snum" id="vn" min="-5" max="5" step="0.01" value="0.00">
+    <span class="sunit">V</span>
+  </div>
+  <div class="vdir"><span style="color:var(--red)">← Retarding</span><span style="color:var(--green)">Accelerating →</span></div>
+</div>
+
+<!-- ACTIONS -->
+<div id="actions">
+  <button class="abp" onclick="recordPoint()">● Record Data Point</button>
+  <button class="abs" id="dbtn" onclick="toggleData()">Show Data</button>
+  <button class="abs" id="gbtn" onclick="toggleGraph()">Show Graphs</button>
+  <button class="abs" id="swbtn" onclick="autoSweep()">⚡ Auto Sweep</button>
+  <button class="abs" onclick="clearData()">Clear Data</button>
+  <button class="abs" onclick="resetAll()">Reset</button>
+</div>
+
+<!-- DATA -->
+<div id="data-sec">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+    <span style="font-weight:700">Recorded Data</span>
+    <span id="dct" style="font-size:11px;color:var(--dim)">0 points</span>
+  </div>
+  <div style="max-height:190px;overflow-y:auto">
+    <table id="dt">
+      <thead><tr>
+        <th>#</th><th>Metal</th><th>λ (nm)</th><th>f (THz)</th>
+        <th>Density</th><th>V (V)</th><th>I (μA)</th><th>KE (eV)</th><th>Vs (V)</th>
+      </tr></thead>
+      <tbody id="dtb">
+        <tr><td colspan="9" style="text-align:center;color:#999;padding:12px">— No data —</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- GRAPHS -->
+<div id="graph-sec">
+  <div id="gg">
+    <div class="gp">
+      <div class="gt"><span>I–V Characteristic</span><button class="ge" onclick="openModal('iv')">⤢</button></div>
+      <canvas class="gc" id="iv-c" height="190"></canvas>
+    </div>
+    <div class="gp">
+      <div class="gt"><span>KE max vs Frequency</span><button class="ge" onclick="openModal('kef')">⤢</button></div>
+      <canvas class="gc" id="kef-c" height="190"></canvas>
+    </div>
+    <div class="gp">
+      <div class="gt"><span>Stopping Potential vs Frequency</span><button class="ge" onclick="openModal('vsf')">⤢</button></div>
+      <canvas class="gc" id="vsf-c" height="190"></canvas>
+    </div>
+    <div class="gp">
+      <div class="gt"><span>Current vs Photon Density</span><button class="ge" onclick="openModal('ci')">⤢</button></div>
+      <canvas class="gc" id="ci-c" height="190"></canvas>
+    </div>
+  </div>
+  <div id="gs"></div>
+</div>
+
+<div id="footer">Kajal Thapar &nbsp;·&nbsp; PhysiForge</div>
+</div><!-- #app -->
+
+<!-- MODAL -->
+<div id="modal"><div id="mi">
+  <div id="mh"><span id="mt">Graph</span><button id="mx" onclick="closeModal()">×</button></div>
+  <canvas id="mc" height="440"></canvas>
+</div></div>
+
+<!-- HELP -->
+<div id="hbg"><div id="hbox">
+  <h2>Photoelectric Effect — Help</h2>
+  <h3>Physics</h3>
+  <p>When light hits a metal cathode, electrons are ejected if photon energy exceeds the work function φ:</p>
+  <div class="heq">KE_max = hf − φ &nbsp;&nbsp;&nbsp; (Einstein, 1905)</div>
+  <div class="heq">Vs = KE_max / e &nbsp;&nbsp;&nbsp; (stopping potential)</div>
+  <p>The <b>saturation current I₀</b> is proportional to photon density only. The <b>stopping potential</b> depends only on frequency, never on intensity.</p>
+  <h3>I–V Curve</h3>
+  <ul>
+    <li><b>V ≥ 0:</b> saturation current I₀ (flat)</li>
+    <li><b>−Vs ≤ V &lt; 0:</b> quadratic falloff</li>
+    <li><b>V &lt; −Vs:</b> current = 0</li>
+  </ul>
+  <h3>Controls</h3>
+  <ul>
+    <li>Drag the spectrum bar or type a wavelength (200–750 nm)</li>
+    <li>Photon Density only affects current, never KE</li>
+    <li>Auto Sweep records 10 points across wavelengths</li>
+    <li>Slope of KE vs f = Planck's constant h</li>
+  </ul>
+  <br><button onclick="closeHelp()" style="padding:7px 18px;background:#0055aa;color:#fff;border:none;border-radius:4px;cursor:pointer">Close</button>
+</div></div>
+
+<!-- RESOURCES -->
+<div id="resbg"><div id="resbox">
+  <h2>Resources — Photoelectric Effect</h2>
+
+  <h3>Concept</h3>
+  <p>The photoelectric effect is the emission of electrons when light falls on a metal surface. It was explained by Einstein in 1905 using the quantum hypothesis, earning him the Nobel Prize in 1921.</p>
+
+  <h3>Key Observations</h3>
+  <ul>
+    <li>A <b>threshold frequency</b> f₀ exists — below it, no emission regardless of intensity</li>
+    <li>Emission is <b>instantaneous</b> — no time delay even at low intensity</li>
+    <li><b>Intensity affects current only</b> — more photons = more electrons, not faster ones</li>
+    <li><b>Frequency determines KE</b> — higher f = higher kinetic energy of emitted electrons</li>
+  </ul>
+
+  <h3>Equations</h3>
+  <div class="req">KE<sub>max</sub> = hf − φ</div>
+  <div class="req">eV<sub>s</sub> = KE<sub>max</sub> → V<sub>s</sub> = KE<sub>max</sub> (in eV units)</div>
+  <div class="req">f₀ = φ / h &nbsp;&nbsp; (threshold frequency)</div>
+  <div class="req">λ₀ = c / f₀ &nbsp;&nbsp; (threshold wavelength)</div>
+
+  <h3>Guided Experiment</h3>
+  <div class="rstep"><div class="rnum">1</div><span>Select a metal from the Cathode Metal row. Note its work function φ.</span></div>
+  <div class="rstep"><div class="rnum">2</div><span>Set Photon Density to 0.50. Set Voltage to 0 V.</span></div>
+  <div class="rstep"><div class="rnum">3</div><span>Decrease wavelength (drag the spectrum bar left) until the readout shows <b>● EMITTING</b>. This λ is near λ₀.</span></div>
+  <div class="rstep"><div class="rnum">4</div><span>Now vary Photon Density — observe current changes, KE stays constant.</span></div>
+  <div class="rstep"><div class="rnum">5</div><span>Set negative voltage to find stopping potential: the voltage at which current drops to zero.</span></div>
+  <div class="rstep"><div class="rnum">6</div><span>Use <b>Auto Sweep</b> to record 10 data points across wavelengths automatically.</span></div>
+  <div class="rstep"><div class="rnum">7</div><span>Open <b>Show Graphs → KE vs Frequency</b>. Verify the linear relationship.</span></div>
+
+  <h3>Inference from Graph</h3>
+  <ul>
+    <li><b>Slope</b> of KE vs f line = Planck's constant <b>h</b></li>
+    <li><b>x-intercept</b> = threshold frequency f₀</li>
+    <li><b>y-intercept</b> = −φ (negative of work function)</li>
+  </ul>
+
+  <br><button onclick="closeRes()" style="padding:7px 18px;background:#0055aa;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px">Close</button>
+</div></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════
+// PHYSICS
+// ══════════════════════════════════════════
+const H_SI   = 6.626e-34;
+const E_CH   = 1.6e-19;
+const C_LT   = 3e8;
+const H_EV_T = (H_SI/E_CH)*1e12; // 4.136e-3 eV/THz
 
 const METALS = {
-  sodium:{phi:2.28},
-  zinc:{phi:4.3}
+  sodium:   {name:'Sodium',   sym:'Na', phi:2.28, col:'#f4c430'},
+  potassium:{name:'Potassium',sym:'K',  phi:2.30, col:'#c8a040'},
+  calcium:  {name:'Calcium',  sym:'Ca', phi:2.87, col:'#d4b060'},
+  zinc:     {name:'Zinc',     sym:'Zn', phi:4.30, col:'#8a9fa8'},
+  copper:   {name:'Copper',   sym:'Cu', phi:4.70, col:'#b87333'},
+  platinum: {name:'Platinum', sym:'Pt', phi:5.65, col:'#cccccc'},
 };
 
-function physics(f,metal){
-  const phi = METALS[metal].phi;
-  const E = h*f;
-  const emitting = E>=phi;
-  const KE = emitting?E-phi:0;
-  return {E,phi,KE,emitting};
+function lamToF(nm){ return C_LT/(nm*1e-9)/1e12; }
+function fToLam(f) { return C_LT/(f*1e12)*1e9; }
+
+function photoCurrent(V, I0, Vs){
+  if(I0<=0||Vs<0) return 0;
+  if(V>=0)    return I0;
+  if(V<=-Vs)  return 0;
+  const r=(V+Vs)/Vs;
+  return I0*r*r;
 }
 
-function useElectrons(emitting,KE,V,onHit){
-  const [els,setEls]=useState([]);
-
-  useEffect(()=>{
-    let raf;
-
-    const loop=()=>{
-      raf=requestAnimationFrame(loop);
-
-      setEls(prev=>{
-        let hits=0;
-
-        let next=prev.map(e=>{
-          const vx=e.vx+V*0.02;
-          const x=e.x+vx;
-
-          if(x>350 && vx>0){
-            hits++;
-            return null;
-          }
-
-          return {...e,x,vx,life:e.life-1};
-        }).filter(e=>e && e.life>0);
-
-        if(hits>0) onHit(hits);
-
-        if(emitting){
-          next.push({
-            x:150,
-            y:100+Math.random()*40-20,
-            vx:Math.sqrt(KE+0.1)*2,
-            life:100
-          });
-        }
-
-        return next.slice(-60);
-      });
-    };
-
-    raf=requestAnimationFrame(loop);
-    return ()=>cancelAnimationFrame(raf);
-  },[emitting,KE,V]);
-
-  return els;
+function physics(lam,density,V,metal){
+  const fTHz=lamToF(lam);
+  const phi=METALS[metal].phi;
+  const Eph=H_EV_T*fTHz;
+  const f0=phi/H_EV_T;
+  const lam0=fToLam(f0);
+  const emitting=Eph>=phi;
+  let KE=0,Vs=0,current=0;
+  if(emitting){
+    KE=Eph-phi;
+    Vs=KE;
+    const I0=density*12;
+    current=photoCurrent(V,I0,Vs);
+  }
+  return{emitting,Eph,KE,Vs,current,fTHz,f0,lam0,phi};
 }
 
-function App(){
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const S={lam:493,density:0.5,V:0,metal:'sodium',phys:null,rows:[],id:1,
+  sweep:false,showData:false,showGraph:false};
+function recalc(){ S.phys=physics(S.lam,S.density,S.V,S.metal); }
 
-  const [f,setF]=useState(600);
-  const [I,setI]=useState(50);
-  const [V,setV]=useState(0);
-  const [metal,setMetal]=useState("sodium");
+// ══════════════════════════════════════════
+// SPECTRUM COLOR
+// ══════════════════════════════════════════
+function specCol(nm){
+  if(nm<380) return'rgb(55,0,80)';
+  if(nm>700) return'rgb(60,0,0)';
+  let r=0,g=0,b=0;
+  if(nm<440){r=-(nm-440)/60;b=1;}
+  else if(nm<490){g=(nm-440)/50;b=1;}
+  else if(nm<510){g=1;b=-(nm-510)/20;}
+  else if(nm<580){r=(nm-510)/70;g=1;}
+  else if(nm<645){r=1;g=-(nm-645)/65;}
+  else{r=1;}
+  let f=1;
+  if(nm<420)f=0.3+0.7*(nm-380)/40;
+  else if(nm>700)f=0.3+0.7*(750-nm)/50;
+  const t=x=>Math.round(255*Math.max(0,Math.min(1,x*f)));
+  return`rgb(${t(r)},${t(g)},${t(b)})`;
+}
 
-  const [hits,setHits]=useState([]);
-  const [step,setStep]=useState(0);
+// ══════════════════════════════════════════
+// SPECTRUM CANVAS
+// ══════════════════════════════════════════
+const LAM_LO=200, LAM_HI=750;
+let sCvs,sCtx,sW=500;
 
-  const phys=physics(f,metal);
+function initSpec(){
+  sCvs=document.getElementById('spec-canvas');
+  sCtx=sCvs.getContext('2d');
+  sW=sCvs.offsetWidth||500;
+  sCvs.width=sW;
+}
 
-  const onHit=(n)=>{
-    const now=performance.now();
-    setHits(prev=>[
-      ...prev.filter(t=>now-t<500),
-      ...Array(n).fill(now)
-    ]);
-  };
+function drawSpec(){
+  if(!sCtx)return;
+  const gd=sCtx.createLinearGradient(0,0,sW,0);
+  for(let i=0;i<=80;i++){
+    const nm=LAM_LO+(LAM_HI-LAM_LO)*(i/80);
+    gd.addColorStop(i/80,nm<380||nm>700?specCol(nm):specCol(nm));
+  }
+  sCtx.fillStyle=gd; sCtx.fillRect(0,0,sW,56);
 
-  const current=useMemo(()=>{
-    return (hits.length/0.5)*0.1;
-  },[hits]);
+  // UV/IR labels
+  sCtx.font='9px Courier New'; sCtx.textAlign='left';
+  sCtx.fillStyle='rgba(220,220,255,0.85)'; sCtx.fillText('UV',4,16);
+  sCtx.textAlign='right'; sCtx.fillStyle='rgba(200,100,100,0.9)'; sCtx.fillText('IR',sW-4,16);
 
-  const electrons=useElectrons(phys.emitting,phys.KE,V,onHit);
+  // Tick marks
+  [380,450,500,550,600,650,700].forEach(nm=>{
+    const x=(nm-LAM_LO)/(LAM_HI-LAM_LO)*sW;
+    sCtx.strokeStyle='rgba(255,255,255,0.4)';sCtx.lineWidth=1;
+    sCtx.beginPath();sCtx.moveTo(x,0);sCtx.lineTo(x,7);sCtx.stroke();
+    sCtx.fillStyle=nm<530?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.55)';
+    sCtx.font='8px Arial';sCtx.textAlign='center';sCtx.fillText(nm,x,52);
+  });
 
-  const steps=[
-    {text:"Increase frequency until emission",done:phys.emitting},
-    {text:"Increase intensity → current increases",done:current>2},
-    {text:"Apply negative voltage → stop current",done:current===0 && V<0}
-  ];
+  // Cursor
+  const cx=(S.lam-LAM_LO)/(LAM_HI-LAM_LO)*sW;
+  sCtx.strokeStyle='white';sCtx.lineWidth=2;
+  sCtx.beginPath();sCtx.moveTo(cx,0);sCtx.lineTo(cx,56);sCtx.stroke();
+  sCtx.fillStyle='white';sCtx.beginPath();sCtx.arc(cx,28,6,0,Math.PI*2);sCtx.fill();
+  sCtx.strokeStyle='#333';sCtx.lineWidth=1;sCtx.beginPath();sCtx.arc(cx,28,6,0,Math.PI*2);sCtx.stroke();
+}
 
-  useEffect(()=>{
-    if(step<steps.length && steps[step].done){
-      setStep(step+1);
+// ══════════════════════════════════════════
+// APPARATUS SVG
+// ViewBox 0 0 740 270
+// Tube: x138..630, y65..195 (horizontal Millikan tube)
+// Cathode plate: near left, x155..172, y75..185
+// Anode ring: near right, x610..622, y90..170
+// Quartz window: top-left angled
+// Instruments: below center
+// ══════════════════════════════════════════
+const NS='http://www.w3.org/2000/svg';
+const G={
+  // Tube
+  TX1:138,TX2:632,TY1:65,TY2:195,TC:130,
+  // Cathode
+  CX1:155,CX2:172,CY1:76,CY2:184,
+  // Anode
+  AX1:610,AX2:624,AY1:90,AY2:170,
+  // Instruments
+  IY:220,AMX:165,PSX:490,
+};
+
+function mkEl(tag,a){ const e=document.createElementNS(NS,tag); Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v)); return e; }
+
+let _animT=0;
+let eParticles=[];           // discrete electron particles
+const graphView={
+  kef:{x0:400,x1:820,y0:-3,y1:5},
+  iv:{x0:-3,x1:3,y0:0,y1:12},
+  vsf:{x0:400,x1:820,y0:0,y1:5},
+  ci:{x0:0,x1:1,y0:0,y1:12}
+}; // per-graph zoom level
+
+function buildApp(){
+  const svg = document.getElementById('apparatus');
+  svg.innerHTML = '';
+
+  const defs = mkEl('defs',{});
+  svg.appendChild(defs);
+
+  svg.appendChild(mkEl('g',{id:'qwg'}));
+
+  // End cap gradient (shiny metal look)
+  const ecG=mkEl('linearGradient',{id:'ecG',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
+  [{o:'0%',c:'#7a7a7a'},{o:'25%',c:'#cecece'},{o:'55%',c:'#eeeeee'},{o:'80%',c:'#b0b0b0'},{o:'100%',c:'#777777'}]
+    .forEach(s=>{const st=mkEl('stop',{offset:s.o});st.style.stopColor=s.c;ecG.appendChild(st);});
+  defs.appendChild(ecG);
+
+  // Tube body gradient (slight top shine)
+  const tG=mkEl('linearGradient',{id:'tG',x1:'0%',y1:'0%',x2:'0%',y2:'100%'});
+  [{o:'0%',c:'#f5f5f5'},{o:'18%',c:'#ffffff'},{o:'82%',c:'#f0f0f0'},{o:'100%',c:'#e0e0e0'}]
+    .forEach(s=>{const st=mkEl('stop',{offset:s.o});st.style.stopColor=s.c;tG.appendChild(st);});
+  defs.appendChild(tG);
+
+  // Electron clip
+  const clip=mkEl('clipPath',{id:'eclip'});
+  clip.appendChild(mkEl('rect',{x:String(G.CX2+1),y:String(G.TY1+8),
+    width:String(G.AX1-G.CX2-2),height:String(G.TY2-G.TY1-16)}));
+  defs.appendChild(clip);
+
+  svg.appendChild(defs);
+
+  // ── QUARTZ WINDOW (subtly tilted rectangle, ~12° — parallel edges, minimal skew) ──
+  // Bottom edge aligns exactly with tube top (G.TY1). Skew = 8px only.
+  const qW=68, qH=54, qSkew=8;
+
+  // Anchor relative to tube, NOT cathode
+  const qbL=G.TX1 + 20;   // safely inside tube edge
+  const qbR=qbL+qW;
+
+  const qtL=qbL+qSkew;
+  const qtR=qbR+qSkew;
+
+  const qtY=G.TY1-qH;
+  const qbY=G.TY1;
+  // Fill (no border)
+  svg.appendChild(mkEl('polygon',{
+  points:`${qtL},${qtY} ${qtR},${qtY} ${qbR},${qbY} ${qbL},${qbY}`,
+  fill:'rgba(200,230,255,0.55)',
+  stroke:'none'
+  }));
+
+  // Draw ONLY 3 sides (top + two slants)
+  svg.appendChild(mkEl('polyline',{
+  points:`${qtL},${qtY} ${qtR},${qtY} ${qbR},${qbY}`,
+  fill:'none',
+  stroke:'#888',
+  'stroke-width':'1.5'
+  }));
+
+  svg.appendChild(mkEl('polyline',{
+  points:`${qtL},${qtY} ${qbL},${qbY}`,
+  fill:'none',
+  stroke:'#888',
+  'stroke-width':'1.5'
+  }));
+
+  // Light beam arrow (from window to cathode)
+  svg.appendChild(mkEl('g',{id:'beam'}));
+
+  // ── TUBE BODY ──
+  const R=8;
+  svg.appendChild(mkEl('rect',{
+    x:String(G.TX1+32),y:String(G.TY1),
+    width:String(G.TX2-G.TX1-64),height:String(G.TY2-G.TY1),
+    rx:String(R),fill:'url(#tG)',stroke:'#555','stroke-width':'2'
+  }));
+
+  // ── END CAPS (ellipses left and right) ──
+  const ry2=String((G.TY2-G.TY1)/2+4);
+  svg.appendChild(mkEl('ellipse',{cx:String(G.TX1+32),cy:String(G.TC),rx:'34',ry:ry2,fill:'url(#ecG)',stroke:'#555','stroke-width':'1.5'}));
+  svg.appendChild(mkEl('ellipse',{cx:String(G.TX2-32),cy:String(G.TC),rx:'34',ry:ry2,fill:'url(#ecG)',stroke:'#555','stroke-width':'1.5'}));
+
+  // ── CATHODE PLATE ──
+  svg.appendChild(mkEl('rect',{
+    id:'cathode',
+    x:String(G.CX1),y:String(G.CY1),
+    width:String(G.CX2-G.CX1),height:String(G.CY2-G.CY1),
+    fill:METALS[S.metal].col,stroke:'#444','stroke-width':'1.2'
+  }));
+
+  // ── ANODE PLATE ──
+  svg.appendChild(mkEl('rect',{
+    id:'anode',
+    x:String(G.AX1),y:String(G.AY1),
+    width:String(G.AX2-G.AX1),height:String(G.AY2-G.AY1),
+    fill:'#a0a0a0',stroke:'#444','stroke-width':'1.2'
+  }));
+
+  // ── FIELD LINES GROUP ──
+  svg.appendChild(mkEl('g',{id:'flines'}));
+
+  // ── ELECTRONS GROUP (clipped) ──
+  svg.appendChild(mkEl('g',{id:'egroup','clip-path':'url(#eclip)'}));
+
+  // ── LABELS ──
+  // C and A above plates
+  const lC=mkEl('text',{x:String(G.CX1+(G.CX2-G.CX1)/2),y:String(G.TY1-5),
+    'font-size':'11','font-family':'Arial','text-anchor':'middle',fill:'#444'});
+  lC.textContent='C'; svg.appendChild(lC);
+  const lA=mkEl('text',{x:String(G.AX1+(G.AX2-G.AX1)/2),y:String(G.TY1-5),
+    'font-size':'11','font-family':'Arial','text-anchor':'middle',fill:'#444'});
+  lA.textContent='A'; svg.appendChild(lA);
+  // Metal name
+  const lMet=mkEl('text',{id:'met-lbl',x:String(G.CX1+(G.CX2-G.CX1)/2),y:String(G.TY2+16),
+    'font-size':'13','font-family':'Arial','text-anchor':'middle',fill:'#333'});
+  lMet.textContent=METALS[S.metal].name; svg.appendChild(lMet);
+  // Status inside tube
+  const lSt=mkEl('text',{id:'tube-st',x:'385',y:'135',
+    'font-size':'11','font-family':'Arial','text-anchor':'middle','font-style':'italic',fill:'#aa0000'});
+  svg.appendChild(lSt);
+
+  // ── CIRCUIT WIRES ──
+  const wPts=(d)=>{const p=mkEl('polyline',{points:d,fill:'none',stroke:'#333','stroke-width':'1.6'});svg.appendChild(p);};
+  const wLine=(x1,y1,x2,y2)=>svg.appendChild(mkEl('line',{x1:String(x1),y1:String(y1),x2:String(x2),y2:String(y2),stroke:'#333','stroke-width':'1.6'}));
+  // Left cap bottom → down to IY → across to ammeter
+  wPts(`${G.TX1+32},${G.TY2+3} ${G.TX1+32},${G.IY} ${G.AMX+60},${G.IY}`);
+  // Ammeter bottom pin → ground line → PS bottom pin → up to right cap
+  wLine(G.AMX,G.IY+50,G.AMX,G.IY+62);
+  wLine(G.AMX,G.IY+62,G.PSX+60,G.IY+62);
+  wLine(G.PSX+60,G.IY+62,G.PSX+60,G.IY+50);
+  // PS top → right cap
+  wPts(`${G.PSX+60},${G.IY} ${G.TX2-32},${G.IY} ${G.TX2-32},${G.TY2+3}`);
+
+  // ── AMMETER DISPLAY ──
+  const ammG=document.createElementNS(NS,'g');
+  ammG.setAttribute('transform',`translate(${G.AMX},${G.IY})`);
+  ammG.innerHTML=`
+    <rect x="0" y="0" width="120" height="50" rx="3" fill="#080808" stroke="#555" stroke-width="1.5"/>
+    <text x="60" y="-5" font-size="9" fill="#666" font-family="Arial" text-anchor="middle">Ammeter (μA)</text>
+    <text id="amm-v" x="60" y="34" font-size="21" fill="#00ff44" font-family="Courier New" text-anchor="middle" font-weight="bold">0.000</text>
+    <rect x="1" y="43" width="6" height="6" fill="#aa0000"/>
+    <rect x="113" y="43" width="6" height="6" fill="#333"/>`;
+  svg.appendChild(ammG);
+
+  // ── POWER SUPPLY DISPLAY ──
+  const psG=document.createElementNS(NS,'g');
+  psG.setAttribute('transform',`translate(${G.PSX},${G.IY})`);
+  psG.innerHTML=`
+    <rect x="0" y="0" width="120" height="50" rx="3" fill="#080808" stroke="#555" stroke-width="1.5"/>
+    <text x="60" y="-5" font-size="9" fill="#666" font-family="Arial" text-anchor="middle">Power Supply (V)</text>
+    <text id="ps-v" x="60" y="34" font-size="21" fill="#00ff44" font-family="Courier New" text-anchor="middle" font-weight="bold">0.000</text>
+    <circle cx="14" cy="25" r="11" fill="#111" stroke="#444" stroke-width="1"/>
+    <line x1="14" y1="16" x2="14" y2="34" stroke="#777" stroke-width="1.5"/>
+    <line x1="8" y1="20" x2="20" y2="30" stroke="#777" stroke-width="1.5"/>
+    <rect x="113" y="43" width="6" height="6" fill="#aa0000"/>
+    <rect x="113" y="1" width="6" height="6" fill="#333"/>`;
+  svg.appendChild(psG);
+}
+
+function updateApp(){
+  const svg=document.getElementById('apparatus');
+  if(!svg.firstChild) return;
+  const{emitting,KE,Vs,current,lam0}=S.phys;
+  const lc=specCol(S.lam);
+
+  // Instruments
+  const av=svg.querySelector('#amm-v');
+  if(av) av.textContent=current.toFixed(3);
+  const pv=svg.querySelector('#ps-v');
+  if(pv) pv.textContent=(S.V>=0?'+':'')+S.V.toFixed(3);
+
+  // Cathode color
+  const cp=svg.querySelector('#cathode');
+  if(cp) cp.setAttribute('fill',METALS[S.metal].col);
+  const ml=svg.querySelector('#met-lbl');
+  if(ml) ml.textContent=METALS[S.metal].name;
+
+  // Anode color (green = +, red = -)
+  const an=svg.querySelector('#anode');
+  if(an) an.setAttribute('fill', S.V>0?'#88bb88':S.V<-0.05?'#bb8888':'#a0a0a0');
+
+  // Status text
+  const st=svg.querySelector('#tube-st');
+  if(st){
+    if(!emitting){
+      st.textContent=`No emission — λ > λ₀=${lam0.toFixed(0)} nm`;
+      st.setAttribute('fill','#aa0000');
+    } else if(current<0.001&&S.V<-0.05){
+      st.textContent=`Electrons stopped  (Vs = ${Vs.toFixed(2)} V)`;
+      st.setAttribute('fill','#885500');
+    } else {
+      st.textContent='';
     }
-  },[phys,current,V]);
+  }
 
-  return(
-    <div style={{padding:20}}>
+  // ── PHOTON WAVE PACKET: travels from quartz window top → cathode face ──
+  // ── TRUE GAUSSIAN WAVE PACKET (NON-PERIODIC, REAL SPACE) ──
+const qwg=svg.querySelector('#qwg'); 
+if(qwg) qwg.innerHTML='';
 
-      <h2 style={{color:"#00e5ff"}}>PHOTOELECTRIC EFFECT</h2>
+if(qwg){
 
-      <div className="panel">
-        <b>Tasks</b>
-        {steps.map((s,i)=>(
-          <div key={i} style={{color:i<step?"#00ff88":"#888"}}>
-            {i<step?"✔":"⬜"} {s.text}
-          </div>
-        ))}
-      </div>
+  // Path endpoints
+  const qbL2=G.TX1 + 20, qSkew2=8, qH2=54, qW2=68;
+  const qtL2=qbL2+qSkew2, qtR2=qtL2+qW2;
+  const qtY2=G.TY1-qH2;
 
-      <div className="panel">
-        Frequency: {f}
-        <input type="range" min="400" max="800" value={f} onChange={e=>setF(+e.target.value)}/>
+  const x0=(qtL2+qtR2)/2;
+  const y0=qtY2;
 
-        Intensity: {I}
-        <input type="range" min="0" max="100" value={I} onChange={e=>setI(+e.target.value)}/>
+  const x1=G.CX2;
+  const y1=G.TC;
 
-        Voltage: {V.toFixed(1)}
-        <input type="range" min="-5" max="5" step="0.1" value={V} onChange={e=>setV(+e.target.value)}/>
-      </div>
+  // Direction vector
+  const dx=x1-x0, dy=y1-y0;
+  const L=Math.hypot(dx,dy);
 
-      <svg width="500" height="200">
-        <rect x="150" y="50" width="10" height="100" fill="yellow"/>
-        <rect x="350" y="50" width="10" height="100" fill="cyan"/>
-        {electrons.map((e,i)=>(
-          <circle key={i} cx={e.x} cy={e.y} r="3" fill="cyan"/>
-        ))}
-      </svg>
+  const ux=dx/L, uy=dy/L;
+  const px=-uy, py=ux;
 
-      <div className="panel">
-        Energy: {phys.E.toFixed(2)} eV<br/>
-        Work Function: {phys.phi} eV<br/>
-        KE: {phys.KE.toFixed(2)} eV<br/>
-        Current: {current.toFixed(2)} μA
-      </div>
+  // REAL SPACE PARAMETERS
+  const v=120;
+  const sigma=40;
+  const k=0.25+(750-S.lam)/800;
+  const omega=2*Math.PI*v*k;
 
-    </div>
-  );
+  const s0 = (_animT * v) - 60;
+
+  const pts=[];
+  const steps=120;
+
+  for(let i=0;i<=steps;i++){
+    const s = (i/steps)*L;
+
+    const envelope = Math.exp(-((s - s0)**2)/(2*sigma*sigma));
+    if(envelope < 0.002) continue;
+
+    const carrier = Math.sin(2*Math.PI*k*s - omega*_animT);
+    const disp = envelope * carrier * 6;
+
+    const bx = x0 + ux*s;
+    const by = y0 + uy*s;
+
+    pts.push(`${(bx+px*disp).toFixed(1)},${(by+py*disp).toFixed(1)}`);
+  }
+
+  if(pts.length > 2){
+    qwg.appendChild(mkEl('polyline',{
+      points:pts.join(' '),
+      fill:'none',
+      stroke:specCol(S.lam),
+      'stroke-width':String(2 + S.density*1.5),
+      opacity:'0.9'
+    }));
+  }
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  // ── FIELD LINES ──
+  const fl=svg.querySelector('#flines'); if(fl) fl.innerHTML='';
+  if(fl&&Math.abs(S.V)>0.05){
+    const nL=5,fc=S.V>0?'#006600':'#880000';
+    for(let i=0;i<nL;i++){
+      const y=G.CY1+12+i*(G.CY2-G.CY1-24)/(nL-1);
+      fl.appendChild(mkEl('line',{
+        x1:String(G.CX2+1),y1:String(y),x2:String(G.AX1-1),y2:String(y),
+        stroke:fc,'stroke-width':'0.75',
+        opacity:String(Math.min(0.5,Math.abs(S.V)/5*0.6)),
+        'stroke-dasharray':S.V<0?'5,3':'none'
+      }));
+      if(S.V>0){
+        fl.appendChild(mkEl('polygon',{
+          points:`${G.AX1-1},${y} ${G.AX1-9},${y-3} ${G.AX1-9},${y+3}`,
+          fill:fc,opacity:'0.45'
+        }));
+      }
+    }
+  }
 
+  // ── ELECTRONS — discrete particle system ──
+  // Emit new electrons probabilistically based on density
+  if(S.phys.emitting){
+    const emitProb=S.density*5*0.02;  // per-frame probability
+    if(Math.random()<emitProb){
+      eParticles.push({
+        x:G.CX2+3,
+        y:G.TC+(Math.random()-0.5)*22,
+        vx:1.4+S.phys.KE*0.28,        // initial speed from KE
+        alive:true
+      });
+    }
+  } else {
+    eParticles=[];
+  }
+
+  // Update physics: electric field accelerates/decelerates
+  const eFieldAcc=(S.V/5)*0.07;
+  eParticles=eParticles.filter(e=>{
+    e.vx+=eFieldAcc;
+    e.x+=e.vx;
+    return e.vx>0.05&&e.x<G.AX1-2&&e.x>=G.CX2;
+  });
+  while(eParticles.length>28) eParticles.shift();
+
+  // Render electrons
+  const eg=svg.querySelector('#egroup');
+  if(eg){
+    eg.innerHTML='';
+    eParticles.forEach(e=>{
+      // Short trail showing direction
+      eg.appendChild(mkEl('line',{
+        x1:String(Math.max(G.CX2,e.x-12).toFixed(1)),y1:String(e.y.toFixed(1)),
+        x2:String(e.x.toFixed(1)),y2:String(e.y.toFixed(1)),
+        stroke:'#4477ee','stroke-width':'1.2',opacity:'0.3'
+      }));
+      // Electron dot
+      eg.appendChild(mkEl('circle',{
+        cx:String(e.x.toFixed(1)),cy:String(e.y.toFixed(1)),
+        r:'4.5',fill: KE > 2 ? '#ff4444' : '#3366dd',stroke:'#1133aa','stroke-width':'0.8'
+      }));
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+// GRAPH ENGINE
+// ══════════════════════════════════════════
+// Generate clean axis tick values for a given range
+function niceTicks(lo,hi,maxN=6){
+  const range=hi-lo; if(!range) return[lo];
+  const rawStep=range/maxN;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep)));
+  const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>range/s<=maxN+0.01)||10*mag;
+  const ticks=[];
+  for(let v=Math.ceil(lo/step)*step;v<=hi+step*0.001;v+=step)
+    ticks.push(parseFloat(v.toFixed(10)));
+  return ticks;
+}
+function linFit(pts){
+  const n=pts.length; if(n<2)return null;
+  const sx=pts.reduce((a,p)=>a+p.x,0),sy=pts.reduce((a,p)=>a+p.y,0);
+  const sxx=pts.reduce((a,p)=>a+p.x*p.x,0),sxy=pts.reduce((a,p)=>a+p.x*p.y,0);
+  const d=n*sxx-sx*sx; if(!d)return null;
+  const m=(n*sxy-sx*sy)/d, b=(sy-m*sx)/n;
+  const my=sy/n,ss=pts.reduce((a,p)=>a+(p.y-my)**2,0),sr=pts.reduce((a,p)=>a+(p.y-(m*p.x+b))**2,0);
+  return{m,b,r2:ss>1e-14?1-sr/ss:1};
+}
+
+function isDk(){ return document.body.classList.contains('dark'); }
+function gCol(){
+  const d=isDk();
+  return{
+    bg:d?'#08101a':'#ffffff',gr:d?'#1a3a55':'#e0e8f0',ax:d?'#4a7a9a':'#333',
+    tx:d?'#8aaacc':'#333',cv:'#0044cc',sc:'#cc1100',ft:'#ff8800',
+    v0:d?'#2a5a8a':'#aaaaaa',rv:'#cc0000',rg:'#005500'
+  };
+}
+
+function prep(id,H){
+  const c=document.getElementById(id); if(!c)return null;
+  const W=c.offsetWidth||400; c.width=W; c.height=H||190;
+  return{c,ctx:c.getContext('2d'),W,H:c.height};
+}
+
+function base(ctx,W,H,ml,mr,mt,mb,x0,x1,y0,y1,xL,yL,xTk,yTk){
+  const g=gCol(),cw=W-ml-mr,ch=H-mt-mb;
+  ctx.fillStyle=g.bg; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=g.gr; ctx.lineWidth=0.8;
+  xTk.forEach(v=>{const x=ml+(v-x0)/(x1-x0)*cw;ctx.beginPath();ctx.moveTo(x,mt);ctx.lineTo(x,mt+ch);ctx.stroke();});
+  yTk.forEach(v=>{const y=mt+ch*(1-(v-y0)/(y1-y0));ctx.beginPath();ctx.moveTo(ml,y);ctx.lineTo(ml+cw,y);ctx.stroke();});
+  ctx.strokeStyle=g.ax; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ml,mt);ctx.lineTo(ml,mt+ch);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ml,mt+ch);ctx.lineTo(ml+cw,mt+ch);ctx.stroke();
+  ctx.fillStyle=g.tx; ctx.font='9px Arial'; ctx.textAlign='center';
+  ctx.fillText(xL,ml+cw/2,H-2);
+  ctx.save();ctx.translate(10,mt+ch/2);ctx.rotate(-Math.PI/2);ctx.fillText(yL,0,0);ctx.restore();
+  ctx.font='8px Courier New'; ctx.textAlign='center';
+  xTk.forEach(v=>ctx.fillText(v,ml+(v-x0)/(x1-x0)*cw,mt+ch+11));
+  ctx.textAlign='right';
+  yTk.forEach(v=>ctx.fillText(v.toFixed(v%1?1:0),ml-3,mt+ch*(1-(v-y0)/(y1-y0))+3));
+  const toX=v=>ml+(v-x0)/(x1-x0)*cw;
+  const toY=v=>mt+ch*(1-(v-y0)/(y1-y0));
+  return{cw,ch,toX,toY};
+}
+
+function drawIV(id,H){
+  const r=prep(id,H); if(!r)return;
+  const{ctx,W}=r; const H2=r.H;
+  const ml=44,mr=12,mt=18,mb=30;
+  const{cw,ch,toX,toY}=base(ctx,W,H2,ml,mr,mt,mb,-3,3,0,12,'Voltage (V)','Current (μA)',[-3,-2,-1,0,1,2,3],[0,3,6,9,12]);
+  const g=gCol();
+  const{Vs,emitting}=S.phys; const I0=S.density*12;
+
+  // V=0 center
+  ctx.strokeStyle=g.gr; ctx.lineWidth=1; ctx.setLineDash([2,2]);
+  ctx.beginPath();ctx.moveTo(toX(0),mt);ctx.lineTo(toX(0),mt+ch);ctx.stroke();ctx.setLineDash([]);
+
+  // Analytical I-V
+  ctx.strokeStyle=g.cv; ctx.lineWidth=2.5; ctx.beginPath(); let first=true;
+  for(let v=-3;v<=3;v+=0.04){
+    const cur=emitting?photoCurrent(v,I0,Vs):0;
+    const x=toX(v),y=toY(Math.min(12,Math.max(0,cur)));
+    first?(ctx.moveTo(x,y),first=false):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Stopping potential
+  if(emitting&&Vs>0&&Vs<=3){
+    ctx.strokeStyle=g.rv; ctx.lineWidth=1.5; ctx.setLineDash([4,2]);
+    ctx.beginPath();ctx.moveTo(toX(-Vs),mt);ctx.lineTo(toX(-Vs),mt+ch);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=g.rv; ctx.font='8px Courier New'; ctx.textAlign='center';
+    ctx.fillText('−Vs = '+Vs.toFixed(2)+' V',toX(-Vs),mt+10);
+  }
+
+  // Current V line
+  if(S.V>=-3&&S.V<=3){
+    ctx.strokeStyle='#cc7700'; ctx.lineWidth=1.2; ctx.setLineDash([3,2]);
+    ctx.beginPath();ctx.moveTo(toX(S.V),mt);ctx.lineTo(toX(S.V),mt+ch);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // Scatter: recorded points at similar λ
+  ctx.fillStyle=g.sc;
+  S.rows.filter(r=>Math.abs(r.lam-S.lam)<=12).forEach(r=>{
+    ctx.beginPath();ctx.arc(toX(r.V),toY(Math.min(12,r.I)),3.5,0,Math.PI*2);ctx.fill();
+  });
+}
+
+function drawKEF(id,H){
+  const r=prep(id,H); if(!r)return;
+  const{ctx,W}=r; const H2=r.H;
+  const ml=48,mr=14,mt=18,mb=30;
+
+  // ── AUTO-SCALE: always include -φ (negative y-intercept) and threshold f0 ──
+  const phi=S.phys.phi, f0base=S.phys.f0;
+  const kefPts=S.rows.filter(row=>row.KE>0);
+
+  let {x0,x1,y0:yLo,y1:yHi} = graphView.kef;
+
+
+  // Apply zoom centred on axis midpoints
+  // Use persistent viewport directly (no artificial scaling)
+  ({x0,x1,y0:yLo,y1:yHi} = graphView.kef);
+
+  const xTk=niceTicks(x0,x1,6);
+  const yTk=niceTicks(yLo,yHi,6);
+
+  const{cw,ch,toX,toY}=base(ctx,W,H2,ml,mr,mt,mb,x0,x1,yLo,yHi,
+    'Frequency (THz)','KE max (eV)',xTk,yTk);
+  const g=gCol();
+
+  // Zero line (KE=0 baseline) — thicker, serves as visible x-axis
+  ctx.strokeStyle=g.ax; ctx.lineWidth=1.2; ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(ml,toY(0));ctx.lineTo(ml+cw,toY(0));ctx.stroke();
+
+  // Extend y-axis slightly below chart to make negative intercept visible
+  ctx.strokeStyle=g.ax; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ml,mt);ctx.lineTo(ml,mt+ch+4);ctx.stroke();
+
+  // Threshold f₀ line
+  const f0=f0base;
+  if(f0>=x0&&f0<=x1){
+    ctx.strokeStyle=g.rv; ctx.lineWidth=1.2; ctx.setLineDash([4,2]);
+    ctx.beginPath();ctx.moveTo(toX(f0),mt);ctx.lineTo(toX(f0),mt+ch);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=g.rv; ctx.font='8px Courier New'; ctx.textAlign='center';
+    ctx.fillText('f₀='+f0.toFixed(0),toX(f0),mt+10);
+  }
+
+  // Theoretical line — KE = H_EV_T*f − φ, across full visible domain
+  ctx.strokeStyle=g.v0; ctx.lineWidth=1.2; ctx.setLineDash([6,4]); ctx.beginPath();
+  // Use already-defined f0base and phi
+  // Line: KE = H_EV_T*(f - f0), extended from 400 to 820 THz
+  let tFirst=true;
+  for(let f=x0;f<=x1;f+=4){
+    const ke=H_EV_T*f-phi;
+    if(ke<yLo||ke>yHi){tFirst=true;continue;}
+    tFirst?(ctx.moveTo(toX(f),toY(ke)),tFirst=false):ctx.lineTo(toX(f),toY(ke));
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  const pts=S.rows.filter(r=>r.KE>0).map(r=>({x:r.fTHz,y:r.KE}));
+
+  if(pts.length>=2){
+    const fit=linFit(pts);
+    if(fit){
+      const xs=pts.map(p=>p.x);
+      // Fit line: full visible domain
+      ctx.strokeStyle=g.ft; ctx.lineWidth=2; ctx.setLineDash([5,3]);
+      ctx.beginPath();
+      let fitFirst=true;
+      for(let f=x0;f<=x1;f+=4){
+        const ke=fit.m*f+fit.b;
+        if(ke<yLo-0.2||ke>yHi+0.2){fitFirst=true;continue;}
+        const cy=toY(Math.max(yLo,Math.min(yHi,ke)));
+        fitFirst?(ctx.moveTo(toX(f),cy),fitFirst=false):ctx.lineTo(toX(f),cy);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+
+      const h_ev=fit.m*1e-12, h_si=fit.m*E_CH*1e-12;
+
+      // Stats on chart (top-left)
+      ctx.fillStyle=g.ft; ctx.font='8px Courier New'; ctx.textAlign='left';
+      ctx.fillText('slope (h) = '+fit.m.toFixed(4)+' eV/THz',ml+4,mt+16);
+      ctx.fillText('h = '+h_ev.toExponential(3)+' eV·s',ml+4,mt+26);
+      ctx.fillText('R² = '+fit.r2.toFixed(4),ml+4,mt+36);
+
+      // "slope = h" annotation near mid-line
+      const xMid=(Math.min(...xs)+Math.max(...xs))/2;
+      const yMid=fit.m*xMid+fit.b;
+      if(yMid>0.2&&yMid<yHi-0.3){
+        const lx=toX(xMid)+6, ly=toY(yMid)-5;
+        if(lx<ml+cw-40&&ly>mt+44){
+          ctx.fillStyle=g.ft; ctx.textAlign='left';
+          ctx.fillText('slope = h',lx,ly);
+        }
+      }
+
+      // x-intercept (f₀ from fit)
+      if(fit.m!==0){
+        const xi=-fit.b/fit.m;
+        if(xi>=400&&xi<=820){
+          ctx.fillStyle=g.rg; ctx.textAlign='center'; ctx.font='8px Courier New';
+          ctx.fillText('f₀',toX(xi),mt+ch+11);
+          ctx.beginPath();ctx.arc(toX(xi),toY(0),4,0,Math.PI*2);ctx.fill();
+        }
+      }
+
+      // y-intercept (−φ): TRUE negative value, below the KE=0 line
+      // Only visible because Y range now includes negatives
+      const yInt=fit.b; // negative: e.g. −2.28 for sodium
+      if(yInt>=yLo&&yInt<0){
+        const icY=toY(yInt);
+        // Dashed horizontal from y-axis rightward
+        ctx.strokeStyle=g.rv; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+        ctx.beginPath();ctx.moveTo(ml,icY);ctx.lineTo(ml+cw*0.18,icY);ctx.stroke();
+        ctx.setLineDash([]);
+        // Point: filled ring on y-axis
+        ctx.fillStyle=g.rv;
+        ctx.beginPath();ctx.arc(ml,icY,4.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=isDk()?g.bg:'#fff';
+        ctx.beginPath();ctx.arc(ml,icY,2,0,Math.PI*2);ctx.fill();
+        // Label
+        ctx.fillStyle=g.rv; ctx.font='8px Courier New'; ctx.textAlign='left';
+        ctx.fillText(`−φ = ${yInt.toFixed(2)} eV`,ml+cw*0.18+4,icY+3);
+      }
+
+      // Stats panel
+      const gs=document.getElementById('gs');
+      if(gs){
+        gs.style.display='block';
+        gs.innerHTML=`<b>KE vs Frequency — Fit Results:</b><br>
+          KE = (${fit.m.toFixed(3)}) f ${fit.b >= 0 ? '+' : ''} ${fit.b.toFixed(3)}
+          slope = ${fit.m.toFixed(5)} eV/THz &nbsp;→&nbsp; h = ${h_ev.toExponential(3)} eV·s = ${h_si.toExponential(3)} J·s<br>
+          Actual h = 6.626×10⁻³⁴ J·s &nbsp;|&nbsp; Error = ${(Math.abs(h_si-H_SI)/H_SI*100).toFixed(1)}%<br>
+          f₀ (x-int) = ${fit.m?(-fit.b/fit.m).toFixed(0):'—'} THz &nbsp;|&nbsp; −φ (y-int) = ${fit.b.toFixed(3)} eV &nbsp;|&nbsp; R² = ${fit.r2.toFixed(4)}`;
+      }
+    }
+  }
+
+  // Data points (scatter)
+  ctx.fillStyle=g.sc;
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(p.y),4,0,Math.PI*2);ctx.fill();});
+  if(!pts.length){
+    ctx.fillStyle=g.tx; ctx.font='11px Arial'; ctx.textAlign='center';
+    ctx.fillText('Press Record or Auto Sweep to add data',ml+cw/2,toY(1));
+  }
+}
+
+function drawVsF(id,H){
+  const r=prep(id,H); if(!r)return;
+  const{ctx,W}=r; const H2=r.H;
+  const ml=44,mr=14,mt=18,mb=30;
+  const{cw,ch,toX,toY}=base(ctx,W,H2,ml,mr,mt,mb,400,820,0,5,'Frequency (THz)','Stopping Vs (V)',[400,500,600,700,800],[0,1,2,3,4,5]);
+  const g=gCol();
+  const f0=S.phys.f0;
+  if(f0>=400&&f0<=820){
+    ctx.strokeStyle=g.rv; ctx.lineWidth=1.2; ctx.setLineDash([4,2]);
+    ctx.beginPath();ctx.moveTo(toX(f0),mt);ctx.lineTo(toX(f0),mt+ch);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=g.rv; ctx.font='8px Courier New'; ctx.textAlign='center';
+    ctx.fillText('f₀',toX(f0),mt+10);
+  }
+  const pts=S.rows.filter(r=>r.Vs>0).map(r=>({x:r.fTHz,y:r.Vs}));
+  if(pts.length>=2){
+    const fit=linFit(pts);
+    if(fit){
+      const xs=pts.map(p=>p.x);
+      ctx.strokeStyle=g.ft; ctx.lineWidth=2; ctx.setLineDash([5,3]);
+      ctx.beginPath();
+      ctx.moveTo(toX(Math.min(...xs)),toY(fit.m*Math.min(...xs)+fit.b));
+      ctx.lineTo(toX(Math.max(...xs)),toY(fit.m*Math.max(...xs)+fit.b));
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=g.ft; ctx.font='8px Courier New'; ctx.textAlign='left';
+      ctx.fillText('slope = h/e = '+(fit.m).toFixed(4)+' V/THz',ml+4,mt+18);
+      ctx.fillText('R² = '+fit.r2.toFixed(4),ml+4,mt+28);
+    }
+  }
+  ctx.fillStyle=g.sc;
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(p.y),4,0,Math.PI*2);ctx.fill();});
+  if(!pts.length){ctx.fillStyle=g.tx;ctx.font='11px Arial';ctx.textAlign='center';
+    ctx.fillText('Record data above threshold',ml+cw/2,mt+ch/2);}
+}
+
+function drawCI(id,H){
+  const r=prep(id,H); if(!r)return;
+  const{ctx,W}=r; const H2=r.H;
+  const ml=44,mr=14,mt=18,mb=30;
+  const{cw,ch,toX,toY}=base(ctx,W,H2,ml,mr,mt,mb,0,1,0,12,'Photon Density','Current (μA)',[0,0.25,0.5,0.75,1],[0,3,6,9,12]);
+  const g=gCol();
+  if(S.phys.emitting){
+    ctx.strokeStyle=g.v0; ctx.lineWidth=1.2; ctx.setLineDash([6,4]);
+    ctx.beginPath();
+    ctx.moveTo(toX(0),toY(0));
+    ctx.lineTo(toX(1),toY(photoCurrent(S.V,12,S.phys.Vs)));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  const pts=S.rows.filter(r=>r.KE>0&&Math.abs(r.fTHz-S.phys.fTHz)<20).map(r=>({x:r.density,y:r.I}));
+  ctx.fillStyle=g.sc;
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(Math.min(12,p.y)),4,0,Math.PI*2);ctx.fill();});
+  if(!pts.length){ctx.fillStyle=g.tx;ctx.font='11px Arial';ctx.textAlign='center';
+    ctx.fillText('Vary density and record',ml+cw/2,mt+ch/2);}
+}
+
+function drawAll(){
+  drawIV('iv-c'); drawKEF('kef-c'); drawVsF('vsf-c'); drawCI('ci-c');
+}
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+const MLBLS={iv:'I–V Characteristic',kef:'KE max vs Frequency',vsf:'Stopping Potential vs Frequency',ci:'Current vs Photon Density'};
+let mType=null;
+function openModal(t){
+  mType=t; document.getElementById('mt').textContent=MLBLS[t]||t;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>{
+    const mc=document.getElementById('mc');
+    mc.width=mc.offsetWidth; mc.height=440;
+    if(t==='iv') drawIV('mc',440);
+    if(t==='kef') drawKEF('mc',440);
+    if(t==='vsf') drawVsF('mc',440);
+    if(t==='ci') drawCI('mc',440);
+  },40);
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); mType=null; }
+
+// ══════════════════════════════════════════
+// READOUT
+// ══════════════════════════════════════════
+function updateUI(){
+  const{emitting,Eph,KE,Vs,current,fTHz,f0,lam0,phi}=S.phys;
+  const em=document.getElementById('ro-em');
+  if(em){em.textContent=emitting?'● EMITTING':'○ NO EMISSION (f < f₀)';em.className='ro-val '+(emitting?'emit-y':'emit-n');}
+  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  sv('ro-eph',Eph.toFixed(3)+' eV');
+  sv('ro-phi',phi.toFixed(2)+' eV');
+  sv('ro-ke', emitting?KE.toFixed(3)+' eV':'—');
+  sv('ro-vs', emitting?Vs.toFixed(3)+' V':'—');
+  sv('ro-l0', lam0.toFixed(0)+' nm');
+  sv('ro-cur',current.toFixed(3)+' μA');
+  // Frequency display
+  const fv=document.getElementById('freq-val');
+  if(fv){
+    const Hz=fTHz*1e12, exp=Math.floor(Math.log10(Hz)), man=(Hz/10**exp).toFixed(2);
+    const sup={'1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','0':'⁰'};
+    fv.textContent=man+' × 10'+String(exp).replace(/./,c=>sup[c]||c)+' Hz';
+  }
+  const si=document.getElementById('spec-inp');
+  if(si&&document.activeElement!==si) si.value=Math.round(S.lam);
+}
+
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+function recordPoint(){
+  const{emitting,Eph,KE,Vs,current,fTHz}=S.phys;
+  S.rows.push({id:S.id++,metal:S.metal,lam:S.lam,fTHz,density:S.density,V:S.V,I:current,KE,Vs});
+  rebuildTable();
+  if(!S.showGraph&&S.rows.filter(r=>r.KE>0).length>=3){
+    S.showGraph=true;
+    document.getElementById('graph-sec').style.display='block';
+    document.getElementById('gbtn').textContent='Hide Graphs';
+    setTimeout(drawAll,60);
+  }
+}
+
+function rebuildTable(){
+  const tb=document.getElementById('dtb'),ct=document.getElementById('dct');
+  if(ct) ct.textContent=S.rows.length+' point'+(S.rows.length!==1?'s':'');
+  if(!tb)return;
+  if(!S.rows.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#999;padding:12px">— No data —</td></tr>';return;}
+  tb.innerHTML=[...S.rows].reverse().map(r=>`<tr>
+    <td style="text-align:center">${r.id}</td><td style="text-align:center">${METALS[r.metal].sym}</td>
+    <td>${r.lam.toFixed(0)}</td><td>${r.fTHz.toFixed(1)}</td><td>${r.density.toFixed(2)}</td>
+    <td>${r.V.toFixed(3)}</td>
+    <td style="color:${r.I>0.001?'#005500':'#aa0000'}">${r.I.toFixed(3)}</td>
+    <td style="color:${r.KE>0?'#0044aa':'#999'}">${r.KE.toFixed(3)}</td>
+    <td style="color:${r.Vs>0?'#aa0000':'#999'}">${r.Vs.toFixed(3)}</td>
+  </tr>`).join('');
+}
+
+function clearData(){
+  S.rows=[];S.id=1;rebuildTable();
+  const gs=document.getElementById('gs');if(gs)gs.style.display='none';
+  if(S.showGraph)drawAll();
+}
+
+function toggleData(){
+  S.showData=!S.showData;
+  document.getElementById('data-sec').style.display=S.showData?'block':'none';
+  document.getElementById('dbtn').textContent=S.showData?'Hide Data':'Show Data';
+}
+
+function toggleGraph(){
+  S.showGraph=!S.showGraph;
+  document.getElementById('graph-sec').style.display=S.showGraph?'block':'none';
+  document.getElementById('gbtn').textContent=S.showGraph?'Hide Graphs':'Show Graphs';
+  if(S.showGraph)setTimeout(drawAll,60);
+}
+
+function resetAll(){
+  S.lam=493;S.density=0.5;S.V=0;S.metal='sodium';
+  recalc();syncCtrl();buildMetals();buildApp();
+  Object.assign(graphView,{
+  kef:{x0:400,x1:820,y0:-3,y1:5},
+  iv:{x0:-3,x1:3,y0:0,y1:12},
+  vsf:{x0:400,x1:820,y0:0,y1:5},
+  ci:{x0:0,x1:1,y0:0,y1:12}
+});
+}
+
+// ══════════════════════════════════════════
+// AUTO SWEEP
+// ══════════════════════════════════════════
+function autoSweep(){
+  if(S.sweep)return;
+  S.sweep=true;
+  const btn=document.getElementById('swbtn');
+  if(btn){btn.textContent='⟳ Sweeping…';btn.disabled=true;}
+  const steps=Array.from({length:10},(_,i)=>260+i*42);
+  let idx=0;
+  const tick=()=>{
+    if(idx>=steps.length){
+      S.sweep=false;
+      if(btn){btn.textContent='⚡ Auto Sweep';btn.disabled=false;}
+      S.showGraph=true;
+      document.getElementById('graph-sec').style.display='block';
+      document.getElementById('gbtn').textContent='Hide Graphs';
+      setTimeout(drawAll,60);return;
+    }
+    S.lam=steps[idx++]; recalc(); syncCtrl();
+    setTimeout(()=>{recordPoint(); setTimeout(tick,380);},100);
+  };
+  tick();
+}
+
+// ══════════════════════════════════════════
+// METAL BUTTONS
+// ══════════════════════════════════════════
+function buildMetals(){
+  const row=document.getElementById('metal-row'); row.innerHTML='';
+  Object.entries(METALS).forEach(([k,m])=>{
+    const b=document.createElement('button');
+    b.className='mbtn'+(k===S.metal?' sel':'');
+    b.onclick=()=>{S.metal=k;recalc();buildMetals();buildApp();};
+    b.innerHTML=`<span class="msw" style="background:${m.col}"></span>${m.sym} (φ=${m.phi}eV)`;
+    row.appendChild(b);
+  });
+}
+
+// ══════════════════════════════════════════
+// CONTROLS SYNC
+// ══════════════════════════════════════════
+function syncCtrl(){
+  const si=document.getElementById('spec-inp'),ds=document.getElementById('ds'),
+    dn=document.getElementById('dn'),vss=document.getElementById('vs'),vn=document.getElementById('vn');
+  if(si&&document.activeElement!==si) si.value=Math.round(S.lam);
+  if(ds)ds.value=S.density; if(dn)dn.value=S.density.toFixed(2);
+  if(vss)vss.value=S.V; if(vn)vn.value=S.V.toFixed(2);
+}
+
+// ══════════════════════════════════════════
+// THEME / HELP
+// ══════════════════════════════════════════
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  try{localStorage.setItem('phe_dk',document.body.classList.contains('dark')?'1':'0');}catch(e){}
+  if(S.showGraph)drawAll();
+}
+function openHelp(){document.getElementById('hbg').classList.add('open');}
+function closeHelp(){document.getElementById('hbg').classList.remove('open');}
+function openRes(){document.getElementById('resbg').classList.add('open');}
+function closeRes(){document.getElementById('resbg').classList.remove('open');}
+
+// ══════════════════════════════════════════
+// EVENT WIRING
+// ══════════════════════════════════════════
+function wire(){
+  // Wavelength input
+  const si=document.getElementById('spec-inp');
+  const setLam=()=>{let v=parseFloat(si.value);if(isNaN(v))return;S.lam=Math.max(200,Math.min(750,v));recalc();};
+  si.addEventListener('input',setLam);
+  si.addEventListener('change',setLam);
+
+  // Spectrum bar drag
+  let drag=false;
+  const fromX=cx=>{
+    const rect=sCvs.getBoundingClientRect();
+    const x=Math.max(0,Math.min(rect.width,cx-rect.left));
+    S.lam=Math.round(LAM_LO+(LAM_HI-LAM_LO)*(x/rect.width));
+    recalc(); si.value=S.lam;
+  };
+  sCvs.addEventListener('mousedown',e=>{drag=true;fromX(e.clientX);});
+  sCvs.addEventListener('mousemove',e=>{if(drag)fromX(e.clientX);});
+  window.addEventListener('mouseup',()=>{drag=false;});
+  sCvs.addEventListener('touchstart',e=>{drag=true;fromX(e.touches[0].clientX);},{passive:true});
+  sCvs.addEventListener('touchmove',e=>{if(drag)fromX(e.touches[0].clientX);},{passive:true});
+  sCvs.addEventListener('touchend',()=>{drag=false;});
+
+  // Density
+  const dss=document.getElementById('ds'),dn=document.getElementById('dn');
+  dss.addEventListener('input',()=>{S.density=parseFloat(dss.value);dn.value=S.density.toFixed(2);recalc();});
+  dn.addEventListener('change',()=>{let v=parseFloat(dn.value);v=Math.max(0.01,Math.min(1,v));S.density=v;dss.value=v;dn.value=v.toFixed(2);recalc();});
+
+  // Voltage
+  const vss=document.getElementById('vs'),vn=document.getElementById('vn');
+  vss.addEventListener('input',()=>{S.V=parseFloat(vss.value);vn.value=S.V.toFixed(2);recalc();});
+  vn.addEventListener('change',()=>{let v=parseFloat(vn.value);v=Math.max(-5,Math.min(5,v));S.V=v;vss.value=v;vn.value=v.toFixed(2);recalc();});
+
+  // Keyboard
+  window.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT')return;
+    if(e.key==='ArrowRight'){S.lam=Math.min(750,S.lam+(e.shiftKey?10:1));recalc();syncCtrl();}
+    if(e.key==='ArrowLeft') {S.lam=Math.max(200,S.lam-(e.shiftKey?10:1));recalc();syncCtrl();}
+    if(e.key==='Escape'){closeModal();closeHelp();closeRes();}
+  });
+
+  // Modal backdrop
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+  document.getElementById('hbg').addEventListener('click',e=>{if(e.target.id==='hbg')closeHelp();});
+  document.getElementById('resbg').addEventListener('click',e=>{if(e.target.id==='resbg')closeRes();});
+
+  // Resize
+  let rt=null;
+  window.addEventListener('resize',()=>{
+    clearTimeout(rt);rt=setTimeout(()=>{initSpec();if(S.showGraph)drawAll();},150);
+  });
+
+  // ── GRAPH ZOOM: mouse wheel on any canvas ──
+  [{id:'kef-c',k:'kef'},{id:'iv-c',k:'iv'},{id:'vsf-c',k:'vsf'},{id:'ci-c',k:'ci'}].forEach(({id,k})=>{
+    const c=document.getElementById(id); if(!c) return;
+   c.addEventListener('wheel',e=>{
+  e.preventDefault();
+
+  const rect=c.getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  const my=e.clientY-rect.top;
+
+  const view=graphView[k];
+
+  const zx = Math.max(0, Math.min(1, mx / rect.width));
+  const zy = Math.max(0, Math.min(1, my / rect.height));
+
+  const scale = Math.exp(e.deltaY * -0.0015); // smooth exponential zoom
+
+  const nx0 = view.x0 + (view.x1 - view.x0)*zx*(1 - scale);
+  const nx1 = view.x1 - (view.x1 - view.x0)*(1 - zx)*(1 - scale);
+
+  const ny0 = view.y0 + (view.y1 - view.y0)*(1 - zy)*(1 - scale);
+  const ny1 = view.y1 - (view.y1 - view.y0)*zy*(1 - scale);
+
+  // Clamp limits (prevents collapse)
+  if(Math.abs(nx1-nx0) > 0.01 && Math.abs(ny1-ny0) > 0.01){
+    view.x0 = nx0;
+    view.x1 = nx1;
+    view.y0 = ny0;
+    view.y1 = ny1;
+  }
+
+  drawAll();
+
+},{passive:false});
+    c.title='Scroll to zoom';
+  });
+}
+
+// ══════════════════════════════════════════
+// ANIMATION LOOP
+// ══════════════════════════════════════════
+let lastGt=0;
+function loop(ts){
+  try{
+    _animT+=0.016;
+    drawSpec();
+    updateApp();
+    updateUI();
+    if(S.showGraph&&ts-lastGt>100){
+      lastGt=ts; drawAll();
+      if(mType&&document.getElementById('modal').classList.contains('open')){
+        const mc=document.getElementById('mc');
+        if(mc){if(mType==='iv')drawIV('mc',mc.height);else if(mType==='kef')drawKEF('mc',mc.height);else if(mType==='vsf')drawVsF('mc',mc.height);else if(mType==='ci')drawCI('mc',mc.height);}
+      }
+    }
+    requestAnimationFrame(loop);
+  }catch(err){console.warn('loop:',err);requestAnimationFrame(loop);}
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init(){
+  try{if(localStorage.getItem('phe_dk')==='1')document.body.classList.add('dark');}catch(e){}
+  recalc();
+  initSpec();
+  buildMetals();
+  buildApp();
+  wire();
+  syncCtrl();
+  requestAnimationFrame(loop);
+}
+window.addEventListener('load',()=>setTimeout(init,60));
 </script>
-
 </body>
 </html>
