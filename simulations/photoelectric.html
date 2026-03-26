@@ -307,7 +307,7 @@ body.dark #gs{background:#0e1e2c}
   <h3>Physics</h3>
   <p>When light hits a metal cathode, electrons are ejected if photon energy exceeds the work function φ:</p>
   <div class="heq">KE_max = hf − φ &nbsp;&nbsp;&nbsp; (Einstein, 1905)</div>
-  <div class="heq">Vs = KE_max / e &nbsp;&nbsp;&nbsp; (stopping potential)</div>
+  <div class="heq">Vs = KE_max / e &nbsp;&nbsp;&nbsp; (stopping potential)</div> // since KE is already in eV, Vs numerically equals
   <p>The <b>saturation current I₀</b> is proportional to photon density only. The <b>stopping potential</b> depends only on frequency, never on intensity.</p>
   <h3>I–V Curve</h3>
   <ul>
@@ -485,7 +485,7 @@ function physics(lam,density,V,metal){
     KE=Eph-phi;
     Vs=KE;
     const excess = Math.max(0, Eph - phi);
-    const I0 = density * 12 * (excess / Eph);
+    const I0 = density * 12;
     current=photoCurrent(V,I0,Vs);
   }
   return{emitting,Eph,KE,Vs,current,fTHz,f0,lam0,phi};
@@ -771,13 +771,14 @@ function updateApp(){
   if (bm) bm.innerHTML = '';
 
   // Emit packets
-  const emissionRate = S.density * 0.08;
-  if (Math.random() < emissionRate) {
-    wavePackets.push({
-      t0: _animT,
-      speed: 0.22
-    });
-  }
+  const photonRate = S.density * (S.phys.emitting ? 0.12 : 0.04);
+if (Math.random() < photonRate) {
+  wavePackets.push({
+    t0: _animT,
+    speed: 0.22,
+    energy: S.phys.Eph   // attach physics
+  });
+}
 
   // Path
   const startX = (G.CX1 - 4 + 8 + (68 / 2));
@@ -796,10 +797,10 @@ function updateApp(){
 
   // wavelength → frequency
   const lambdaScaled = (S.lam - 200) / (750 - 200);
-  const cycles = 2 + (1 - lambdaScaled) * 18;
+  const cycles = 3 + (1 - lambdaScaled) * 10;
   const k = cycles * 2 * Math.PI;
 
-  const sigma = 0.035;
+  const sigma = 0.02;
   const amplitude = 3.5;
   const steps = 60;
 
@@ -835,7 +836,7 @@ function updateApp(){
         fill: 'none',
         stroke: specCol(S.lam),
         'stroke-width': 6,
-        opacity: 0.12
+        opacity: 0.08
       }));
 
       qwg.appendChild(mkEl('polyline', {
@@ -845,7 +846,17 @@ function updateApp(){
         'stroke-width': 2
       }));
     }
-
+    // When packet reaches cathode → emit electron
+  if (center > 0.95 && center < 1.05) {
+    p.emitted = true;
+    if (p.energy >= S.phys.phi) {
+      eParticles.push({
+        x: G.CX2 + 3,
+        y: G.TC + (Math.random() - 0.5) * 22,
+        vx: 1.2 + Math.sqrt(S.phys.KE) * 1.2
+    });
+  }
+}
     return true;
   });
 
@@ -871,24 +882,12 @@ function updateApp(){
   }
 
   // ── ELECTRONS — discrete particle system ──
-  // Emit new electrons probabilistically based on density
-  if(S.phys.emitting){
-    const emitProb=S.density*5*0.02;  // per-frame probability
-    if(Math.random()<emitProb){
-      eParticles.push({
-        x:G.CX2+3,
-        y:G.TC+(Math.random()-0.5)*22,
-        vx:1.4+S.phys.KE*0.28,        // initial speed from KE
-        alive:true
-      });
-    }
-  } else {
-    eParticles =[];
-  }
+
 
   // Update physics: electric field accelerates/decelerates
   // We no longer kill negative velocities, allowing electrons to slow, stop, and reverse!
-  const eFieldAcc=(S.V/5)*0.07;
+  const eFieldAcc = (S.V / S.phys.Vs) * 0.05;
+  if (S.phys.Vs === 0) eFieldAcc = 0;
   eParticles=eParticles.filter(e=>{
     e.vx+=eFieldAcc;
     e.x+=e.vx;
@@ -1313,7 +1312,7 @@ function updateUI(){
   sv('ro-eph',Eph.toFixed(3)+' eV');
   sv('ro-phi',phi.toFixed(2)+' eV');
   sv('ro-ke', emitting?KE.toFixed(3)+' eV':'—');
-  sv('ro-vs', emitting?Vs.toFixed(3)+' V':'—');
+  sv('ro-vs', Vs > 0 ? Vs.toFixed(3)+' V' : '0.000 V');
   sv('ro-l0', lam0.toFixed(0)+' nm');
   sv('ro-cur',current.toFixed(3)+' μA');
   // Frequency display
@@ -1426,7 +1425,10 @@ function autoSweep(){
   S.sweep=true;
   const btn=document.getElementById('swbtn');
   if(btn){btn.textContent='⟳ Sweeping…';btn.disabled=true;}
-  const steps=Array.from({length:10},(_,i)=>260+i*42);
+  const lam0 = S.phys.lam0;
+  const start = Math.max(200, lam0 - 150);
+  const end = Math.min(750, lam0 + 150);
+  const steps = Array.from({length:10},(_,i)=> start + i*(end-start)/9);
   let idx=0;
   const tick=()=>{
     if(idx>=steps.length){
