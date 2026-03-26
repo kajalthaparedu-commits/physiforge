@@ -130,7 +130,8 @@ body.dark #gs{background:#0e1e2c}
 #hbox p,#hbox li{font-size:13px;line-height:1.6;margin-bottom:5px}
 .heq{background:#eef4ff;border:1px solid #ccd;border-radius:4px;
   padding:6px 11px;font-family:monospace;margin:5px 0;font-size:13px}
-/* Resources modal — same structure as help */
+
+/* RESOURCES */
 #resbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
   z-index:999;align-items:center;justify-content:center}
 #resbg.open{display:flex}
@@ -146,6 +147,24 @@ body.dark #gs{background:#0e1e2c}
 .rnum{background:#0055aa;color:#fff;border-radius:50%;width:18px;height:18px;
   display:flex;align-items:center;justify-content:center;font-size:10px;
   font-weight:700;flex-shrink:0}
+
+/* PRACTICE */
+#prbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:999;align-items:center;justify-content:center}
+#prbg.open{display:flex}
+#prbox{background:#fff;border-radius:8px;padding:22px 26px;max-width:600px;
+  width:90%;max-height:85vh;overflow-y:auto;color:#111}
+#prbox h2{color:#0055aa;margin-bottom:10px}
+#prbox h3{margin-top:16px;font-size:15px;color:#003388;border-bottom:1px solid #dde;padding-bottom:3px}
+#prbox p{font-size:13px;line-height:1.6;margin-bottom:5px;margin-top:6px}
+#prbox ul{margin-left:20px;margin-top:6px;margin-bottom:6px;font-size:13px;line-height:1.6}
+.ans{display:none;background:#eef4ff;border-left:3px solid #0055aa;
+  padding:8px 12px;margin-top:6px;margin-bottom:12px;font-family:monospace;font-size:13px;line-height:1.5}
+.prbtn{margin:6px 0;padding:6px 12px;background:#0055aa;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px}
+.prbtn:hover{opacity:0.9}
+.prbtn-alt{margin-left:6px;margin-top:6px;padding:5px 10px;border:1px solid #888;background:#fff;cursor:pointer;font-size:12px;border-radius:4px;color:#333}
+.prbtn-alt:hover{background:#f0f0f0}
+
 #footer{text-align:center;padding:9px 0;font-size:11px;color:var(--dim);border-top:1px solid var(--border)}
 </style>
 </head>
@@ -160,6 +179,7 @@ body.dark #gs{background:#0e1e2c}
   <div style="display:flex;gap:6px">
     <button class="tbtn" onclick="history.back()">← Back</button>
     <button class="tbtn" onclick="openRes()">Resources</button>
+    <button class="tbtn" onclick="openPractice()">Practice</button>
     <button class="tbtn" onclick="toggleTheme()">Light / Dark</button>
     <button class="tbtn" onclick="openHelp()">? Help</button>
   </div>
@@ -348,6 +368,80 @@ body.dark #gs{background:#0e1e2c}
   <br><button onclick="closeRes()" style="padding:7px 18px;background:#0055aa;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px">Close</button>
 </div></div>
 
+<!-- PRACTICE -->
+<div id="prbg"><div id="prbox">
+  <h2>Practice — Photoelectric Effect</h2>
+
+  <h3>🔬 Live Experiment Questions</h3>
+  <p style="font-size:12px;color:#555">Based on your current simulation settings</p>
+
+  <div id="liveQ" style="margin:10px 0;font-size:13px;"><em>Click Generate to create questions based on current parameters.</em></div>
+
+  <button class="prbtn" onclick="generateLiveQ()">Generate Questions</button>
+  <button class="prbtn-alt" onclick="toggleLiveAns()">Show Answers</button>
+
+  <div id="liveAns" class="ans"></div>
+
+  <h3>Case Study</h3>
+  <p>Light of wavelength 550 nm is incident on a metal. The stopping potential is 0.20 V.</p>
+  <ul>
+    <li>1. Calculate photon energy.</li>
+    <li>2. Find work function.</li>
+    <li>3. Will 700 nm cause emission?</li>
+    <li>4. Find threshold frequency.</li>
+  </ul>
+  <button class="prbtn-alt" style="margin-left:0" onclick="toggleAns(this)">Show Answer</button>
+  <div class="ans">
+    E = 1240/λ = 2.25 eV<br>
+    φ = E − KE = 2.05 eV<br>
+    700 nm → No emission<br>
+    f₀ = φ/h
+  </div>
+
+  <h3>Conceptual</h3>
+  <ul>
+    <li>Why does intensity not affect KE?</li>
+    <li>Why is emission instantaneous?</li>
+    <li>What is threshold frequency?</li>
+  </ul>
+  <button class="prbtn-alt" style="margin-left:0" onclick="toggleAns(this)">Show Answer</button>
+  <div class="ans">
+    KE depends only on frequency.<br>
+    Energy transfer is one photon → one electron.<br>
+    f₀ = minimum frequency required.
+  </div>
+
+  <h3>Comparative</h3>
+  <p>Sodium (φ=2.28 eV) vs Platinum (φ=5.65 eV)</p>
+  <ul>
+    <li>Which emits first?</li>
+    <li>Which has higher KE?</li>
+    <li>Which needs higher frequency?</li>
+  </ul>
+  <button class="prbtn-alt" style="margin-left:0" onclick="toggleAns(this)">Show Answer</button>
+  <div class="ans">
+    Sodium emits first.<br>
+    Sodium gives higher KE (same f).<br>
+    Platinum needs higher frequency.
+  </div>
+
+  <h3>Graph-Based</h3>
+  <ul>
+    <li>Slope of KE vs f graph?</li>
+    <li>x-intercept represents?</li>
+    <li>y-intercept represents?</li>
+  </ul>
+  <button class="prbtn-alt" style="margin-left:0" onclick="toggleAns(this)">Show Answer</button>
+  <div class="ans">
+    Slope = Planck’s constant.<br>
+    x-intercept = threshold frequency.<br>
+    y-intercept = −φ.
+  </div>
+
+  <br>
+  <button onclick="closePractice()" style="margin-top:10px;padding:7px 18px;background:#0055aa;color:#fff;border:none;border-radius:4px;cursor:pointer">Close</button>
+</div></div>
+
 <script>
 'use strict';
 // ══════════════════════════════════════════
@@ -451,7 +545,8 @@ function drawSpec(){
   sCtx.fillStyle='rgba(220,220,255,0.85)'; sCtx.fillText('UV',4,16);
   sCtx.textAlign='right'; sCtx.fillStyle='rgba(200,100,100,0.9)'; sCtx.fillText('IR',sW-4,16);
 
-  // Tick marks[380,450,500,550,600,650,700].forEach(nm=>{
+  // Tick marks
+  [380,450,500,550,600,650,700].forEach(nm=>{
     const x=(nm-LAM_LO)/(LAM_HI-LAM_LO)*sW;
     sCtx.strokeStyle='rgba(255,255,255,0.4)';sCtx.lineWidth=1;
     sCtx.beginPath();sCtx.moveTo(x,0);sCtx.lineTo(x,7);sCtx.stroke();
@@ -1374,7 +1469,7 @@ function syncCtrl(){
 }
 
 // ══════════════════════════════════════════
-// THEME / HELP
+// THEME / HELP / PRACTICE
 // ══════════════════════════════════════════
 function toggleTheme(){
   document.body.classList.toggle('dark');
@@ -1385,6 +1480,59 @@ function openHelp(){document.getElementById('hbg').classList.add('open');}
 function closeHelp(){document.getElementById('hbg').classList.remove('open');}
 function openRes(){document.getElementById('resbg').classList.add('open');}
 function closeRes(){document.getElementById('resbg').classList.remove('open');}
+function openPractice(){
+  document.getElementById('prbg').classList.add('open');
+  generateLiveQ(); // generate based on state upon opening
+}
+function closePractice(){document.getElementById('prbg').classList.remove('open');}
+
+function toggleAns(btn){
+  const ans = btn.nextElementSibling;
+  ans.style.display = ans.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = ans.style.display === 'block' ? 'Hide Answer' : 'Show Answer';
+}
+
+function generateLiveQ(){
+  const p = S.phys;
+  const lam = S.lam;
+  const f = p.fTHz.toFixed(1);
+  const phi = p.phi.toFixed(2);
+  const KE = p.KE.toFixed(3);
+  const Vs = p.Vs.toFixed(3);
+  const emitting = p.emitting;
+
+  const qBox = document.getElementById('liveQ');
+  const aBox = document.getElementById('liveAns');
+
+  qBox.innerHTML = `
+  <ul style="margin-left:16px;">
+    <li>1. For λ = ${lam} nm, calculate photon energy in eV.</li>
+    <li>2. Will emission occur for ${METALS[S.metal].name} (φ = ${phi} eV)?</li>
+    <li>3. Calculate maximum KE of emitted electrons.</li>
+    <li>4. Determine stopping potential.</li>
+    <li>5. Predict what happens to current and KE if intensity is doubled.</li>
+  </ul>
+  `;
+
+  aBox.innerHTML = `
+  Photon Energy = ${(H_EV_T * p.fTHz).toFixed(3)} eV<br>
+  Emission: ${emitting ? "YES" : "NO"}<br>
+  KE = ${emitting ? KE : "0.000"} eV<br>
+  Vs = ${emitting ? Vs : "0.000"} V<br>
+  Intensity ↑ → Current increases, KE unchanged
+  `;
+
+  aBox.style.display = "none";
+  const aBtn = aBox.previousElementSibling;
+  if(aBtn) aBtn.textContent = 'Show Answers';
+}
+
+function toggleLiveAns(){
+  const aBox = document.getElementById('liveAns');
+  const aBtn = aBox.previousElementSibling;
+  aBox.style.display = aBox.style.display === 'block' ? 'none' : 'block';
+  aBtn.textContent = aBox.style.display === 'block' ? 'Hide Answers' : 'Show Answers';
+}
 
 // ══════════════════════════════════════════
 // EVENT WIRING
@@ -1426,13 +1574,14 @@ function wire(){
     if(e.target.tagName==='INPUT')return;
     if(e.key==='ArrowRight'){S.lam=Math.min(750,S.lam+(e.shiftKey?10:1));recalc();syncCtrl();}
     if(e.key==='ArrowLeft') {S.lam=Math.max(200,S.lam-(e.shiftKey?10:1));recalc();syncCtrl();}
-    if(e.key==='Escape'){closeModal();closeHelp();closeRes();}
+    if(e.key==='Escape'){closeModal();closeHelp();closeRes();closePractice();}
   });
 
   // Modal backdrop
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   document.getElementById('hbg').addEventListener('click',e=>{if(e.target.id==='hbg')closeHelp();});
   document.getElementById('resbg').addEventListener('click',e=>{if(e.target.id==='resbg')closeRes();});
+  document.getElementById('prbg').addEventListener('click',e=>{if(e.target.id==='prbg')closePractice();});
 
   // Resize
   let rt=null;
